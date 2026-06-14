@@ -2,45 +2,22 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React from 'react'
-
 import { cn } from '@/lib/utils'
-import { useTranslations } from 'next-intl'
 
 const links = [
-  {
-    title: 'Overview',
-    href: '/admin/overview',
-  },
-  {
-    title: 'Products',
-    href: '/admin/products',
-  },
-  {
-    title: 'Orders',
-    href: '/admin/orders',
-  },
-  {
-    title: 'Users',
-    href: '/admin/users',
-  },
-  { title: 'Vendors',
-    href: '/admin/vendors'
-  },
-  {
-    title: 'Pages',
-    href: '/admin/web-pages',
-  },
-  {
-    title: 'Settings',
-    href: '/admin/settings',
-  },
+  { title: 'Overview',  href: '/vendor/overview' },
+  { title: 'Products',  href: '/vendor/products' },
+  { title: 'Orders',    href: '/vendor/orders' },
+  { title: 'Earnings',  href: '/vendor/earnings' },
+  { title: 'Settings',  href: '/vendor/settings' },
 ]
-export function AdminNav({
+
+export function VendorNav({
   className,
   ...props
 }: React.HTMLAttributes<HTMLElement>) {
   const pathname = usePathname()
-  const t = useTranslations('Admin')
+
   return (
     <nav
       className={cn(
@@ -58,7 +35,7 @@ export function AdminNav({
             pathname.includes(item.href) ? '' : 'text-muted-foreground'
           )}
         >
-          {t(item.title)}
+          {item.title}
         </Link>
       ))}
     </nav>

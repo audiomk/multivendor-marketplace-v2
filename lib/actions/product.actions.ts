@@ -16,10 +16,7 @@ export async function createProduct(data: IProductInput) {
     await connectToDatabase()
     await Product.create(product)
     revalidatePath('/admin/products')
-    return {
-      success: true,
-      message: 'Product created successfully',
-    }
+    return { success: true, message: 'Product created successfully' }
   } catch (error) {
     return { success: false, message: formatError(error) }
   }
@@ -32,14 +29,12 @@ export async function updateProduct(data: z.infer<typeof ProductUpdateSchema>) {
     await connectToDatabase()
     await Product.findByIdAndUpdate(product._id, product)
     revalidatePath('/admin/products')
-    return {
-      success: true,
-      message: 'Product updated successfully',
-    }
+    return { success: true, message: 'Product updated successfully' }
   } catch (error) {
     return { success: false, message: formatError(error) }
   }
 }
+
 // DELETE
 export async function deleteProduct(id: string) {
   try {
@@ -47,18 +42,25 @@ export async function deleteProduct(id: string) {
     const res = await Product.findByIdAndDelete(id)
     if (!res) throw new Error('Product not found')
     revalidatePath('/admin/products')
-    return {
-      success: true,
-      message: 'Product deleted successfully',
-    }
+    return { success: true, message: 'Product deleted successfully' }
   } catch (error) {
     return { success: false, message: formatError(error) }
   }
 }
+
 // GET ONE PRODUCT BY ID
 export async function getProductById(productId: string) {
   await connectToDatabase()
   const product = await Product.findById(productId)
+  return JSON.parse(JSON.stringify(product)) as IProduct
+}
+
+// GET ONE PRODUCT BY SLUG — with vendor populated
+export async function getProductBySlug(slug: string) {
+  await connectToDatabase()
+  const product = await Product.findOne({ slug, isPublished: true })
+    .populate('vendorId', 'vendorProfile')
+  if (!product) throw new Error('Product not found')
   return JSON.parse(JSON.stringify(product)) as IProduct
 }
 
@@ -75,42 +77,29 @@ export async function getAllProductsForAdmin({
   limit?: number
 }) {
   await connectToDatabase()
-
-  const {
-    common: { pageSize },
-  } = await getSetting()
+  const { common: { pageSize } } = await getSetting()
   limit = limit || pageSize
-  const queryFilter =
-    query && query !== 'all'
-      ? {
-          name: {
-            $regex: query,
-            $options: 'i',
-          },
-        }
-      : {}
+
+  const queryFilter = query && query !== 'all'
+    ? { name: { $regex: query, $options: 'i' } }
+    : {}
 
   const order: Record<string, 1 | -1> =
-    sort === 'best-selling'
-      ? { numSales: -1 }
-      : sort === 'price-low-to-high'
-        ? { price: 1 }
-        : sort === 'price-high-to-low'
-          ? { price: -1 }
-          : sort === 'avg-customer-review'
-            ? { avgRating: -1 }
-            : { _id: -1 }
-  const products = await Product.find({
-    ...queryFilter,
-  })
+    sort === 'best-selling'      ? { numSales: -1 } :
+    sort === 'price-low-to-high' ? { price: 1 }     :
+    sort === 'price-high-to-low' ? { price: -1 }    :
+    sort === 'avg-customer-review' ? { avgRating: -1 } :
+    { _id: -1 }
+
+  const products = await Product.find({ ...queryFilter })
+    .populate('vendorId', 'vendorProfile')
     .sort(order)
     .skip(limit * (Number(page) - 1))
     .limit(limit)
     .lean()
 
-  const countProducts = await Product.countDocuments({
-    ...queryFilter,
-  })
+  const countProducts = await Product.countDocuments({ ...queryFilter })
+
   return {
     products: JSON.parse(JSON.stringify(products)) as IProduct[],
     totalPages: Math.ceil(countProducts / pageSize),
@@ -122,11 +111,9 @@ export async function getAllProductsForAdmin({
 
 export async function getAllCategories() {
   await connectToDatabase()
-  const categories = await Product.find({ isPublished: true }).distinct(
-    'category'
-  )
-  return categories
+  return Product.find({ isPublished: true }).distinct('category')
 }
+
 export async function getProductsForCard({
   tag,
   limit = 4,
@@ -151,6 +138,7 @@ export async function getProductsForCard({
     image: string
   }[]
 }
+
 // GET PRODUCTS BY TAG
 export async function getProductsByTag({
   tag,
@@ -169,14 +157,7 @@ export async function getProductsByTag({
   return JSON.parse(JSON.stringify(products)) as IProduct[]
 }
 
-// GET ONE PRODUCT BY SLUG
-export async function getProductBySlug(slug: string) {
-  await connectToDatabase()
-  const product = await Product.findOne({ slug, isPublished: true })
-  if (!product) throw new Error('Product not found')
-  return JSON.parse(JSON.stringify(product)) as IProduct
-}
-// GET RELATED PRODUCTS: PRODUCTS WITH SAME CATEGORY
+// GET RELATED PRODUCTS
 export async function getRelatedProductsByCategory({
   category,
   productId,
@@ -188,22 +169,24 @@ export async function getRelatedProductsByCategory({
   limit?: number
   page: number
 }) {
-  const {
-    common: { pageSize },
-  } = await getSetting()
+  const { common: { pageSize } } = await getSetting()
   limit = limit || pageSize
   await connectToDatabase()
+
   const skipAmount = (Number(page) - 1) * limit
   const conditions = {
     isPublished: true,
     category,
     _id: { $ne: productId },
   }
+
   const products = await Product.find(conditions)
     .sort({ numSales: 'desc' })
     .skip(skipAmount)
     .limit(limit)
+
   const productsCount = await Product.countDocuments(conditions)
+
   return {
     data: JSON.parse(JSON.stringify(products)) as IProduct[],
     totalPages: Math.ceil(productsCount / limit),
@@ -230,61 +213,38 @@ export async function getAllProducts({
   rating?: string
   sort?: string
 }) {
-  const {
-    common: { pageSize },
-  } = await getSetting()
+  const { common: { pageSize } } = await getSetting()
   limit = limit || pageSize
   await connectToDatabase()
 
-  const queryFilter =
-    query && query !== 'all'
-      ? {
-          name: {
-            $regex: query,
-            $options: 'i',
-          },
-        }
-      : {}
+  const queryFilter = query && query !== 'all'
+    ? { name: { $regex: query, $options: 'i' } }
+    : {}
   const categoryFilter = category && category !== 'all' ? { category } : {}
-  const tagFilter = tag && tag !== 'all' ? { tags: tag } : {}
+  const tagFilter      = tag && tag !== 'all' ? { tags: tag } : {}
+  const ratingFilter   = rating && rating !== 'all'
+    ? { avgRating: { $gte: Number(rating) } }
+    : {}
+  const priceFilter    = price && price !== 'all'
+    ? { price: { $gte: Number(price.split('-')[0]), $lte: Number(price.split('-')[1]) } }
+    : {}
 
-  const ratingFilter =
-    rating && rating !== 'all'
-      ? {
-          avgRating: {
-            $gte: Number(rating),
-          },
-        }
-      : {}
-  // 10-50
-  const priceFilter =
-    price && price !== 'all'
-      ? {
-          price: {
-            $gte: Number(price.split('-')[0]),
-            $lte: Number(price.split('-')[1]),
-          },
-        }
-      : {}
   const order: Record<string, 1 | -1> =
-    sort === 'best-selling'
-      ? { numSales: -1 }
-      : sort === 'price-low-to-high'
-        ? { price: 1 }
-        : sort === 'price-high-to-low'
-          ? { price: -1 }
-          : sort === 'avg-customer-review'
-            ? { avgRating: -1 }
-            : { _id: -1 }
-  const isPublished = { isPublished: true }
+    sort === 'best-selling'        ? { numSales: -1 }  :
+    sort === 'price-low-to-high'   ? { price: 1 }      :
+    sort === 'price-high-to-low'   ? { price: -1 }     :
+    sort === 'avg-customer-review' ? { avgRating: -1 } :
+    { _id: -1 }
+
   const products = await Product.find({
-    ...isPublished,
+    isPublished: true,
     ...queryFilter,
     ...tagFilter,
     ...categoryFilter,
     ...priceFilter,
     ...ratingFilter,
   })
+    .populate('vendorId', 'vendorProfile')
     .sort(order)
     .skip(limit * (Number(page) - 1))
     .limit(limit)
@@ -297,6 +257,7 @@ export async function getAllProducts({
     ...priceFilter,
     ...ratingFilter,
   })
+
   return {
     products: JSON.parse(JSON.stringify(products)) as IProduct[],
     totalPages: Math.ceil(countProducts / limit),
@@ -316,8 +277,7 @@ export async function getAllTags() {
     (tags[0]?.uniqueTags
       .sort((a: string, b: string) => a.localeCompare(b))
       .map((x: string) =>
-        x
-          .split('-')
+        x.split('-')
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(' ')
       ) as string[]) || []

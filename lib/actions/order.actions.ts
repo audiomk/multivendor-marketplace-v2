@@ -3,6 +3,7 @@
 import { Cart, IOrderList, OrderItem, ShippingAddress } from '@/types'
 import { formatError, round2 } from '../utils'
 import { connectToDatabase } from '../db'
+import { splitOrderByVendor } from './payment.actions'
 import { auth } from '@/auth'
 import { OrderInputSchema } from '../validator'
 import Order, { IOrder } from '../db/models/order.model'
@@ -75,6 +76,10 @@ export async function updateOrderToPaid(orderId: string) {
     await order.save()
     if (!process.env.MONGODB_URI?.startsWith('mongodb://localhost'))
       await updateProductStock(order._id)
+
+    // Split order by vendor
+    await splitOrderByVendor(orderId)
+
     if (order.user.email) await sendPurchaseReceipt({ order })
     revalidatePath(`/account/orders/${orderId}`)
     return { success: true, message: 'Order paid successfully' }
@@ -265,6 +270,10 @@ export async function approvePayPalOrder(
         captureData.purchase_units[0]?.payments?.captures[0]?.amount?.value,
     }
     await order.save()
+
+    // Split order by vendor and trigger Stripe payouts
+    await splitOrderByVendor(orderId)
+
     await sendPurchaseReceipt({ order })
     revalidatePath(`/account/orders/${orderId}`)
     return {
@@ -406,16 +415,83 @@ export async function getOrderSummary(date: DateRange) {
     .populate('user', 'name')
     .sort({ createdAt: 'desc' })
     .limit(limit)
+  // Vendor stats
+  const totalVendors   = await User.countDocuments({
+    role: 'vendor',
+    'vendorProfile.isApproved': true,
+  })
+  const pendingVendors = await User.countDocuments({
+    role: 'vendor',
+    'vendorProfile.isApproved': false,
+  })
+
+  // Commission earned from paid orders
+  const allPaidOrders = await Order.find({ isPaid: true }).lean() as any[]
+  const totalCommission = allPaidOrders.reduce((sum, order) => {
+    return sum + ((order.vendorOrders || []).reduce(
+      (s: number, vo: any) => s + (vo.commission || 0), 0
+    ))
+  }, 0)
+
+  // Top vendors by revenue
+  const vendorRevenueMap: Record<string, {
+    name: string
+    storeName: string
+    revenue: number
+    orders: number
+  }> = {}
+
+  for (const order of allPaidOrders) {
+    for (const vo of (order.vendorOrders || [])) {
+      const vid = vo.vendorId?.toString()
+      if (!vid) continue
+      if (!vendorRevenueMap[vid]) {
+        vendorRevenueMap[vid] = {
+          name: '',
+          storeName: '',
+          revenue: 0,
+          orders: 0,
+        }
+      }
+      vendorRevenueMap[vid].revenue += vo.vendorPayout || 0
+      vendorRevenueMap[vid].orders++
+    }
+  }
+
+  // Populate vendor names
+  const vendorIds  = Object.keys(vendorRevenueMap)
+  const vendorDocs = await User.find({ _id: { $in: vendorIds } })
+    .select('name vendorProfile')
+    .lean() as any[]
+
+  for (const v of vendorDocs) {
+    const vid = v._id.toString()
+    if (vendorRevenueMap[vid]) {
+      vendorRevenueMap[vid].name      = v.name
+      vendorRevenueMap[vid].storeName = v.vendorProfile?.storeName || v.name
+    }
+  }
+
+  const topVendors = Object.entries(vendorRevenueMap)
+    .map(([id, data]) => ({ id, ...data }))
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 5)
+
   return {
     ordersCount,
     productsCount,
     usersCount,
     totalSales,
-    monthlySales: JSON.parse(JSON.stringify(monthlySales)),
-    salesChartData: JSON.parse(JSON.stringify(await getSalesChartData(date))),
+    monthlySales:       JSON.parse(JSON.stringify(monthlySales)),
+    salesChartData:     JSON.parse(JSON.stringify(await getSalesChartData(date))),
     topSalesCategories: JSON.parse(JSON.stringify(topSalesCategories)),
-    topSalesProducts: JSON.parse(JSON.stringify(topSalesProducts)),
-    latestOrders: JSON.parse(JSON.stringify(latestOrders)) as IOrderList[],
+    topSalesProducts:   JSON.parse(JSON.stringify(topSalesProducts)),
+    latestOrders:       JSON.parse(JSON.stringify(latestOrders)) as IOrderList[],
+    // Multivendor stats
+    totalVendors,
+    pendingVendors,
+    totalCommission,
+    topVendors:         JSON.parse(JSON.stringify(topVendors)),
   }
 }
 

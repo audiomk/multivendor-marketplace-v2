@@ -60,6 +60,7 @@ export const ProductInputSchema = z.object({
     .number()
     .int()
     .nonnegative('Number of sales must be a non-negative number'),
+  vendorId: z.string().optional(),
 })
 
 export const ProductUpdateSchema = ProductInputSchema.extend({
@@ -132,6 +133,15 @@ export const OrderInputSchema = z.object({
   deliveredAt: z.date().optional(),
   isPaid: z.boolean().default(false),
   paidAt: z.date().optional(),
+  vendorOrders: z.array(z.object({
+    vendorId:        z.string(),
+    items:           z.array(z.string()).default([]),
+    subtotal:        z.number().default(0),
+    commission:      z.number().default(0),
+    vendorPayout:    z.number().default(0),
+    status:          z.string().default('pending'),
+    stripeTransferId: z.string().default(''),
+  })).default([]),
 })
 // Cart
 
@@ -182,6 +192,15 @@ export const UserInputSchema = z.object({
     country: z.string().min(1, 'Country is required'),
     phone: z.string().min(1, 'Phone number is required'),
   }),
+  vendorProfile: z.object({
+    storeName:       z.string().default(''),
+    storeSlug:       z.string().default(''),
+    bio:             z.string().default(''),
+    logo:            z.string().default(''),
+    stripeAccountId: z.string().default(''),
+    isApproved:      z.boolean().default(false),
+    commission:      z.number().default(10),
+  }).optional().nullable(),
 })
 
 export const UserSignInSchema = z.object({

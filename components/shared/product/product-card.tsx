@@ -1,15 +1,14 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
-
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { IProduct } from '@/lib/db/models/product.model'
-
 import Rating from './rating'
 import { formatNumber, generateId, round2 } from '@/lib/utils'
 import ProductPrice from './product-price'
 import ImageHover from './image-hover'
 import AddToCart from './add-to-cart'
+import { Store } from 'lucide-react'
 
 const ProductCard = ({
   product,
@@ -22,6 +21,8 @@ const ProductCard = ({
   hideBorder?: boolean
   hideAddToCart?: boolean
 }) => {
+  const vendor = (product as any).vendorId?.vendorProfile
+
   const ProductImage = () => (
     <Link href={`/product/${product.slug}`}>
       <div className='relative h-52'>
@@ -45,9 +46,24 @@ const ProductCard = ({
       </div>
     </Link>
   )
+
   const ProductDetails = () => (
     <div className='flex-1 space-y-2'>
       <p className='font-bold'>{product.brand}</p>
+
+      {/* Vendor store link */}
+      {vendor?.storeSlug && (
+        <Link
+          href={`/store/${vendor.storeSlug}`}
+          className='flex items-center justify-center gap-1
+                     text-xs text-blue-600 hover:underline'
+          onClick={e => e.stopPropagation()}
+        >
+          <Store size={10} />
+          {vendor.storeName}
+        </Link>
+      )}
+
       <Link
         href={`/product/${product.slug}`}
         className='overflow-hidden text-ellipsis'
@@ -63,7 +79,6 @@ const ProductCard = ({
         <Rating rating={product.avgRating} />
         <span>({formatNumber(product.numReviews)})</span>
       </div>
-
       <ProductPrice
         isDeal={product.tags.includes('todays-deal')}
         price={product.price}
@@ -72,22 +87,23 @@ const ProductCard = ({
       />
     </div>
   )
+
   const AddButton = () => (
     <div className='w-full text-center'>
       <AddToCart
         minimal
         item={{
-          clientId: generateId(),
-          product: product._id,
-          size: product.sizes[0],
-          color: product.colors[0],
+          clientId:     generateId(),
+          product:      product._id,
+          size:         product.sizes[0],
+          color:        product.colors[0],
           countInStock: product.countInStock,
-          name: product.name,
-          slug: product.slug,
-          category: product.category,
-          price: round2(product.price),
-          quantity: 1,
-          image: product.images[0],
+          name:         product.name,
+          slug:         product.slug,
+          category:     product.category,
+          price:        round2(product.price),
+          quantity:     1,
+          image:        product.images[0],
         }}
       />
     </div>
@@ -106,13 +122,13 @@ const ProductCard = ({
       )}
     </div>
   ) : (
-    <Card className='flex flex-col  '>
+    <Card className='flex flex-col'>
       <CardHeader className='p-3'>
         <ProductImage />
       </CardHeader>
       {!hideDetails && (
         <>
-          <CardContent className='p-3 flex-1  text-center'>
+          <CardContent className='p-3 flex-1 text-center'>
             <ProductDetails />
           </CardContent>
           <CardFooter className='p-3'>

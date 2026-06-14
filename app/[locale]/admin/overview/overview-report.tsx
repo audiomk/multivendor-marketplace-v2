@@ -1,6 +1,7 @@
 'use client'
-import { BadgeDollarSign, Barcode, CreditCard, Users } from 'lucide-react'
+import { BadgeDollarSign, Barcode, CreditCard, Users, Store, Clock } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+
 
 import Link from 'next/link'
 import {
@@ -162,6 +163,106 @@ export default function OverviewReport() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Multivendor Stats Row */}
+        <div className='grid gap-4 grid-cols-1 md:grid-cols-3'>
+          <Card>
+            <CardHeader className='flex flex-row items-center justify-between
+                                   space-y-0 pb-2'>
+              <CardTitle className='text-sm font-medium'>
+                Active Vendors
+              </CardTitle>
+              <Store className='w-4 h-4 text-muted-foreground' />
+            </CardHeader>
+            <CardContent className='space-y-2'>
+              <div className='text-2xl font-bold'>{data.totalVendors}</div>
+              <div>
+                <Link className='text-xs' href='/admin/vendors'>
+                  View vendors
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className='flex flex-row items-center justify-between
+                                   space-y-0 pb-2'>
+              <CardTitle className='text-sm font-medium'>
+                Pending Approvals
+              </CardTitle>
+              <Clock className='w-4 h-4 text-yellow-500' />
+            </CardHeader>
+            <CardContent className='space-y-2'>
+              <div className='text-2xl font-bold'>{data.pendingVendors}</div>
+              <div>
+                <Link className='text-xs' href='/admin/vendors'>
+                  Review applications
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className='flex flex-row items-center justify-between
+                                   space-y-0 pb-2'>
+              <CardTitle className='text-sm font-medium'>
+                Commission Earned
+              </CardTitle>
+              <BadgeDollarSign className='w-4 h-4 text-green-500' />
+            </CardHeader>
+            <CardContent className='space-y-2'>
+              <div className='text-2xl font-bold'>
+                <ProductPrice price={data.totalCommission || 0} plain />
+              </div>
+              <div>
+                <Link className='text-xs' href='/admin/orders'>
+                  View orders
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Top Vendors Table */}
+        {data.topVendors?.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Top Vendors by Revenue</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Store</TableHead>
+                    <TableHead>Orders</TableHead>
+                    <TableHead>Revenue</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.topVendors.map((vendor: any) => (
+                    <TableRow key={vendor.id}>
+                      <TableCell className='font-medium'>
+                        <Link
+                          href={`/store/${vendor.storeName
+                            ?.toLowerCase()
+                            .replace(/\s+/g, '-')}`}
+                          className='hover:underline'
+                        >
+                          {vendor.storeName}
+                        </Link>
+                      </TableCell>
+                      <TableCell>{vendor.orders}</TableCell>
+                      <TableCell>
+                        <ProductPrice price={vendor.revenue} plain />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
+
         <div>
           <Card>
             <CardHeader>

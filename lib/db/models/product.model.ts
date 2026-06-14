@@ -9,6 +9,11 @@ export interface IProduct extends Document, IProductInput {
 
 const productSchema = new Schema<IProduct>(
   {
+    vendorId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
     name: {
       type: String,
       required: true,

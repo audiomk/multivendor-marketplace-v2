@@ -1,11 +1,11 @@
 import { auth } from '@/auth'
 import AddToCart from '@/components/shared/product/add-to-cart'
+import { Store } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import {
   getProductBySlug,
   getRelatedProductsByCategory,
 } from '@/lib/actions/product.actions'
-
 import ReviewList from './review-list'
 import { generateId, round2 } from '@/lib/utils'
 import SelectVariant from '@/components/shared/product/select-variant'
@@ -38,15 +38,10 @@ export default async function ProductDetails(props: {
   searchParams: Promise<{ page: string; color: string; size: string }>
 }) {
   const searchParams = await props.searchParams
-
   const { page, color, size } = searchParams
-
   const params = await props.params
-
   const { slug } = params
-
   const session = await auth()
-
   const product = await getProductBySlug(slug)
 
   const relatedProducts = await getRelatedProductsByCategory({
@@ -56,20 +51,37 @@ export default async function ProductDetails(props: {
   })
 
   const t = await getTranslations()
+  const vendor = (product as any).vendorId
+
   return (
     <div>
       <AddToBrowsingHistory id={product._id} category={product.category} />
+
       <section>
-        <div className='grid grid-cols-1 md:grid-cols-5  '>
+        <div className='grid grid-cols-1 md:grid-cols-5'>
+          {/* Gallery */}
           <div className='col-span-2'>
             <ProductGallery images={product.images} />
           </div>
 
+          {/* Info */}
           <div className='flex w-full flex-col gap-2 md:p-5 col-span-2'>
             <div className='flex flex-col gap-3'>
-              <p className='p-medium-16 rounded-full bg-grey-500/10   text-grey-500'>
+              <p className='p-medium-16 rounded-full bg-grey-500/10 text-grey-500'>
                 {t('Product.Brand')} {product.brand} {product.category}
               </p>
+
+              {/* Sold by vendor */}
+{vendor?.vendorProfile?.storeSlug && (
+  <a
+    href={`/store/${vendor.vendorProfile.storeSlug}`}
+    className='text-sm text-blue-600 hover:underline flex items-center gap-1 w-fit'
+  >
+    <Store className='w-3 h-3' />
+    Visit {vendor.vendorProfile.storeName || 'Store'}
+  </a>
+)}
+
               <h1 className='font-bold text-lg lg:text-xl'>{product.name}</h1>
 
               <RatingSummary
@@ -90,6 +102,7 @@ export default async function ProductDetails(props: {
                 </div>
               </div>
             </div>
+
             <div>
               <SelectVariant
                 product={product}
@@ -107,9 +120,11 @@ export default async function ProductDetails(props: {
               </p>
             </div>
           </div>
+
+          {/* Add to cart */}
           <div>
             <Card>
-              <CardContent className='p-4 flex flex-col  gap-4'>
+              <CardContent className='p-4 flex flex-col gap-4'>
                 <ProductPrice price={product.price} />
 
                 {product.countInStock > 0 && product.countInStock <= 3 && (
@@ -119,6 +134,7 @@ export default async function ProductDetails(props: {
                     })}
                   </div>
                 )}
+
                 {product.countInStock !== 0 ? (
                   <div className='text-green-700 text-xl'>
                     {t('Product.In Stock')}
@@ -133,17 +149,17 @@ export default async function ProductDetails(props: {
                   <div className='flex justify-center items-center'>
                     <AddToCart
                       item={{
-                        clientId: generateId(),
-                        product: product._id,
+                        clientId:     generateId(),
+                        product:      product._id,
                         countInStock: product.countInStock,
-                        name: product.name,
-                        slug: product.slug,
-                        category: product.category,
-                        price: round2(product.price),
-                        quantity: 1,
-                        image: product.images[0],
-                        size: size || product.sizes[0],
-                        color: color || product.colors[0],
+                        name:         product.name,
+                        slug:         product.slug,
+                        category:     product.category,
+                        price:        round2(product.price),
+                        quantity:     1,
+                        image:        product.images[0],
+                        size:         size || product.sizes[0],
+                        color:        color || product.colors[0],
                       }}
                     />
                   </div>
@@ -153,18 +169,21 @@ export default async function ProductDetails(props: {
           </div>
         </div>
       </section>
+
       <section className='mt-10'>
         <h2 className='h2-bold mb-2' id='reviews'>
           {t('Product.Customer Reviews')}
         </h2>
         <ReviewList product={product} userId={session?.user.id} />
       </section>
+
       <section className='mt-10'>
         <ProductSlider
           products={relatedProducts.data}
           title={t('Product.Best Sellers in', { name: product.category })}
         />
       </section>
+
       <section>
         <BrowsingHistoryList className='mt-10' />
       </section>

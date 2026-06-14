@@ -33,6 +33,21 @@ const orderSchema = new Schema<IOrder>(
         color: { type: String },
       },
     ],
+    vendorOrders: [
+  {
+    vendorId:        { type: Schema.Types.ObjectId, ref: 'User' },
+    items:           [{ type: Schema.Types.ObjectId, ref: 'Product' }],
+    subtotal:        { type: Number, default: 0 },
+    commission:      { type: Number, default: 0 },
+    vendorPayout:    { type: Number, default: 0 },
+    status: {
+      type: String,
+      enum: ['pending', 'processing', 'shipped', 'delivered'],
+      default: 'pending',
+    },
+    stripeTransferId: { type: String, default: '' },
+  },
+],
     shippingAddress: {
       fullName: { type: String, required: true },
       street: { type: String, required: true },

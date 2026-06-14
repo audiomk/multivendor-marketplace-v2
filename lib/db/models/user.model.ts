@@ -7,20 +7,29 @@ export interface IUser extends Document, IUserInput {
   updatedAt: Date
 }
 
+const vendorProfileSchema = new Schema({
+  storeName:       { type: String, default: '' },
+  storeSlug:       { type: String, default: '' },
+  bio:             { type: String, default: '' },
+  logo:            { type: String, default: '' },
+  stripeAccountId: { type: String, default: '' },
+  isApproved:      { type: Boolean, default: false },
+  commission:      { type: Number, default: 10 },
+}, { _id: false })
+
 const userSchema = new Schema<IUser>(
   {
-    email: { type: String, required: true, unique: true },
-    name: { type: String, required: true },
-    role: { type: String, required: true, default: 'User' },
-    password: { type: String },
-    image: { type: String },
+    email:         { type: String, required: true, unique: true },
+    name:          { type: String, required: true },
+    role:          { type: String, required: true, default: 'User',
+                     enum: ['User', 'vendor', 'admin'] },
+    password:      { type: String },
+    image:         { type: String },
     emailVerified: { type: Boolean, default: false },
+    vendorProfile: { type: vendorProfileSchema, default: null },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 )
 
 const User = (models.User as Model<IUser>) || model<IUser>('User', userSchema)
-
 export default User
