@@ -22,7 +22,7 @@ declare module 'next-auth' {
     } & DefaultSession['user']
   }
 }
-
+////
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   pages: {
