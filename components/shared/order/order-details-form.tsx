@@ -157,26 +157,69 @@ export default function OrderDetailsForm({
             </div>
 
             {!isPaid && ['Stripe', 'PayPal'].includes(paymentMethod) && (
-              <Link
-                className={cn(buttonVariants(), 'w-full')}
-                href={`/checkout/${order._id}`}
-              >
-                Pay Order
-              </Link>
-            )}
+  <Link
+    className={cn(buttonVariants(), 'w-full')}
+    href={`/checkout/${order._id}`}
+  >
+    Pay Order
+  </Link>
+)}
 
-            {isAdmin && !isPaid && paymentMethod === 'Cash On Delivery' && (
-              <ActionButton
-                caption='Mark as paid'
-                action={() => updateOrderToPaid(order._id)}
-              />
-            )}
-            {isAdmin && isPaid && !isDelivered && (
-              <ActionButton
-                caption='Mark as delivered'
-                action={() => deliverOrder(order._id)}
-              />
-            )}
+{/* EcoCash — buyer sees payment instructions */}
+{!isPaid && paymentMethod === 'EcoCash' && (
+  <Link
+    className={cn(buttonVariants(), 'w-full bg-green-600 hover:bg-green-700')}
+    href={`/checkout/${order._id}`}
+  >
+    Pay via EcoCash
+  </Link>
+)}
+
+{/* EcoCash — show reference if submitted */}
+{!isPaid &&
+  paymentMethod === 'EcoCash' &&
+  (order as any).paymentResult?.status === 'ECOCASH_PENDING' && (
+  <div className='bg-yellow-50 border border-yellow-200 rounded p-3 text-sm'>
+    <p className='font-medium text-yellow-800'>⏳ Awaiting Confirmation</p>
+    <p className='text-yellow-700 text-xs mt-1'>
+      Reference: {(order as any).paymentResult?.id}
+    </p>
+  </div>
+)}
+
+{/* Admin — confirm EcoCash payment */}
+{isAdmin && !isPaid && paymentMethod === 'EcoCash' &&
+  (order as any).paymentResult?.status === 'ECOCASH_PENDING' && (
+  <div className='space-y-2'>
+    <div className='bg-green-50 border border-green-200 rounded p-3 text-sm'>
+      <p className='font-medium text-green-800'>EcoCash Reference</p>
+      <p className='font-mono text-green-700 mt-1'>
+        {(order as any).paymentResult?.id}
+      </p>
+      <p className='text-xs text-gray-500 mt-1'>
+        Verify this reference in your EcoCash merchant portal
+        before confirming.
+      </p>
+    </div>
+    <ActionButton
+      caption='✓ Confirm EcoCash Payment'
+      action={() => updateOrderToPaid(order._id)}
+    />
+  </div>
+)}
+
+{isAdmin && !isPaid && paymentMethod === 'Cash On Delivery' && (
+  <ActionButton
+    caption='Mark as paid'
+    action={() => updateOrderToPaid(order._id)}
+  />
+)}
+{isAdmin && isPaid && !isDelivered && (
+  <ActionButton
+    caption='Mark as delivered'
+    action={() => deliverOrder(order._id)}
+  />
+)}
           </CardContent>
         </Card>
       </div>

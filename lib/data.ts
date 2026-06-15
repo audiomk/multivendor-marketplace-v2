@@ -1290,21 +1290,23 @@ We also provide helpful resources such as order tracking, product guides, and FA
       })),
       defaultLanguage: 'en-US',
       availableCurrencies: [
-        {
-          name: 'United States Dollar',
-          code: 'USD',
-          symbol: '$',
-          convertRate: 1,
-        },
-        { name: 'Euro', code: 'EUR', symbol: '€', convertRate: 0.96 },
-        { name: 'UAE Dirham', code: 'AED', symbol: 'AED', convertRate: 3.67 },
-      ],
+  {
+    name: 'United States Dollar',
+    code: 'USD',
+    symbol: '$',
+    convertRate: 1,
+  },
+  { name: 'Euro',        code: 'EUR', symbol: '€',   convertRate: 0.96 },
+  { name: 'UAE Dirham',  code: 'AED', symbol: 'AED', convertRate: 3.67 },
+  { name: 'Zimbabwe Gold', code: 'ZWG', symbol: 'ZWG', convertRate: 27 },
+],
       defaultCurrency: 'USD',
       availablePaymentMethods: [
-        { name: 'PayPal', commission: 0 },
-        { name: 'Stripe', commission: 0 },
-        { name: 'Cash On Delivery', commission: 0 },
-      ],
+  { name: 'PayPal',           commission: 0 },
+  { name: 'Stripe',           commission: 0 },
+  { name: 'EcoCash',          commission: 0 },
+  { name: 'Cash On Delivery', commission: 0 },
+],
       defaultPaymentMethod: 'PayPal',
       availableDeliveryDates: [
         {

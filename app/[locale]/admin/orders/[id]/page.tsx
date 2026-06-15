@@ -32,7 +32,11 @@ const AdminOrderDetailsPage = async (props: {
       </div>
       <OrderDetailsForm
         order={order}
-        isAdmin={session?.user?.role === 'Admin' || false}
+        isAdmin={
+  session?.user?.role === 'Admin' ||
+  session?.user?.role === 'admin' ||
+  false
+}
       />
     </main>
   )
