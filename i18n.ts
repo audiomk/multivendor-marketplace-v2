@@ -1,14 +1,18 @@
+// /i18n.ts
 import { getRequestConfig } from 'next-intl/server';
-import { notFound } from 'next/navigation';
+import { routing } from './i18n/routing'; // Use your existing routing config
 
-// Your existing list of supported locales
-const locales = ['en-US', 'fr', 'ar', 'nd-ZW', 'sn-ZW'];
-
-export default getRequestConfig(async ({ locale }) => {
-  // Validate that the incoming `locale` parameter is valid
-  if (!locales.includes(locale)) notFound();
-
+export default getRequestConfig(async ({ requestLocale }) => {
+  // This satisfies the runtime requirement for next-intl
+  let locale = await requestLocale;
+ 
+  // Ensure the locale is valid
+  if (!locale || !routing.locales.includes(locale as any)) {
+    locale = routing.defaultLocale;
+  }
+ 
   return {
+    locale,
     messages: (await import(`./messages/${locale}.json`)).default
   };
 });
