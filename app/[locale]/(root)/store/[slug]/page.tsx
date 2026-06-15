@@ -46,7 +46,6 @@ export default async function VendorStorePage(props: StorePageProps) {
           <div className='w-16 h-16 md:w-20 md:h-20 bg-yellow-400 rounded-full
                           flex items-center justify-center shrink-0'>
             {profile.logo ? (
-              // eslint-disable-next-line @next/next-intl/no-raw-values
               <img
                 src={profile.logo}
                 alt={profile.storeName}
