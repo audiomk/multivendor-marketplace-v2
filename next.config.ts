@@ -1,17 +1,18 @@
 import type { NextConfig } from 'next'
-import withNextIntl from 'next-intl/plugin'
+import createNextIntlPlugin from 'next-intl/plugin'
 
-const nextConfig: NextConfig = withNextIntl()({
-  /* config options here */
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts')
+
+const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'utfs.io',
-        port: '',
-      },
+      { protocol: 'https', hostname: '**' },
     ],
   },
-})
+  serverExternalPackages: ['mongoose'],
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+}
 
-export default nextConfig
+export default withNextIntl(nextConfig)

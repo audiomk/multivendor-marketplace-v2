@@ -35,9 +35,27 @@ export async function approveVendor(id: string) {
   try {
     await checkAdmin()
     await connectToDatabase()
-    await User.findByIdAndUpdate(id, {
-      'vendorProfile.isApproved': true,
-    })
+
+    const vendor = await User.findByIdAndUpdate(
+      id,
+      { 'vendorProfile.isApproved': true },
+      { new: true }
+    ).lean() as any
+
+    // Send approval email
+    if (vendor?.email) {
+      try {
+        const { sendVendorApprovalEmail } = await import('@/emails')
+        await sendVendorApprovalEmail({
+          vendorEmail: vendor.email,
+          vendorName:  vendor.name,
+          storeName:   vendor.vendorProfile?.storeName || 'Your Store',
+        })
+      } catch (emailErr) {
+        console.error('Approval email failed:', emailErr)
+      }
+    }
+
     revalidatePath('/admin/vendors')
     return { success: true, message: 'Vendor approved' }
   } catch (error) {

@@ -34,9 +34,48 @@ const main = async () => {
     await WebPage.insertMany(webPages)
 
     await Product.deleteMany()
-    const createdProducts = await Product.insertMany(
-      products.map((x) => ({ ...x, _id: undefined }))
-    )
+
+// Fetch real products with working images from dummyjson
+const dummyRes  = await fetch('https://dummyjson.com/products?limit=100')
+const dummyData = await dummyRes.json()
+
+const fetchedProducts = dummyData.products.map((item: any) => ({
+  name:        item.title,
+  slug:        item.title
+               .toLowerCase()
+               .replace(/[^a-z0-9\s-]/g, '')
+               .replace(/\s+/g, '-')
+               .slice(0, 60) + '-' + item.id,
+  category:    item.category,
+  images:      item.images?.slice(0, 2) || [item.thumbnail],
+  brand:       item.brand || 'Generic',
+  description: item.description,
+  price:       item.price,
+  listPrice:   Math.round(item.price * 1.2 * 100) / 100,
+  countInStock: item.stock || 10,
+  tags: [
+    'new-arrival',
+    ...(item.rating >= 4.5              ? ['todays-deal'] : []),
+    ...(item.stock < 20                 ? ['featured']    : []),
+    ...(item.rating >= 4.0 && item.stock > 50 ? ['best-seller'] : []),
+  ],
+  colors:      ['Black', 'White', 'Red'],
+  sizes:       ['S', 'M', 'L', 'XL'],
+  avgRating:   item.rating || 4,
+  numReviews:  Math.floor(Math.random() * 100) + 5,
+  numSales:    Math.floor(Math.random() * 200),
+  isPublished: true,
+  ratingDistribution: [
+    { rating: 1, count: 1 },
+    { rating: 2, count: 2 },
+    { rating: 3, count: 3 },
+    { rating: 4, count: Math.floor(Math.random() * 10) + 5 },
+    { rating: 5, count: Math.floor(Math.random() * 20) + 10 },
+  ],
+  reviews: [],
+}))
+
+const createdProducts = await Product.insertMany(fetchedProducts)
 
     await Review.deleteMany()
     const rws = []
@@ -162,6 +201,7 @@ const generateOrder = async (
     deliveredAt: calculatePastDate(i),
     createdAt: calculatePastDate(i),
     expectedDeliveryDate: calculateFutureDate(i % 2),
+    vendorOrders: [],
     ...calcDeliveryDateAndPriceForSeed({
       items: items,
       shippingAddress: data.users[i % users.length].address,

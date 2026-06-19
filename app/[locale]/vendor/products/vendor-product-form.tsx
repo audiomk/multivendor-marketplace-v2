@@ -24,24 +24,24 @@ import {
 } from '@/lib/actions/vendor.actions'
 
 const defaultValues: IProductInput = {
-  name: '',
-  slug: '',
-  category: '',
-  images: [],
-  brand: '',
+  name:        '',
+  slug:        '',
+  category:    '',
+  images:      [],
+  brand:       '',
   description: '',
-  price: 0,
-  listPrice: 0,
+  price:       0,
+  listPrice:   0,
   countInStock: 0,
-  numReviews: 0,
-  avgRating: 0,
-  numSales: 0,
+  numReviews:  0,
+  avgRating:   0,
+  numSales:    0,
   isPublished: false,
-  tags: [],
-  sizes: [],
-  colors: [],
+  tags:        [],
+  sizes:       ['S', 'M', 'L'],      // ← add
+  colors:      ['Black', 'White'],   // ← add
   ratingDistribution: [],
-  reviews: [],
+  reviews:     [],
 }
 
 export default function VendorProductForm({
@@ -251,6 +251,58 @@ export default function VendorProductForm({
             </FormItem>
           )}
         />
+
+{/* Colors */}
+<FormField
+  control={form.control}
+  name='colors'
+  render={({ field }) => (
+    <FormItem className='w-full'>
+      <FormLabel>Colors (comma separated)</FormLabel>
+      <FormControl>
+        <Input
+          placeholder='Black, White, Red'
+          value={field.value?.join(', ') || ''}
+          onChange={e =>
+            field.onChange(
+              e.target.value
+                .split(',')
+                .map((s: string) => s.trim())
+                .filter(Boolean)
+            )
+          }
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
+{/* Sizes */}
+<FormField
+  control={form.control}
+  name='sizes'
+  render={({ field }) => (
+    <FormItem className='w-full'>
+      <FormLabel>Sizes (comma separated)</FormLabel>
+      <FormControl>
+        <Input
+          placeholder='S, M, L, XL'
+          value={field.value?.join(', ') || ''}
+          onChange={e =>
+            field.onChange(
+              e.target.value
+                .split(',')
+                .map((s: string) => s.trim())
+                .filter(Boolean)
+            )
+          }
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
         {/* Description */}
         <FormField
