@@ -1,7 +1,0 @@
-{
-  "eslint.enable": true,
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.preferences.strictNullChecks": false,
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
-}
