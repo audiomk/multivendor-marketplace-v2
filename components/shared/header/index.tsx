@@ -81,6 +81,8 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { Bell, Camera, Heart, HelpCircle, Store } from 'lucide-react'
+import { auth } from '@/auth'
 import { getAllCategories } from '@/lib/actions/product.actions'
 import Menu from './menu'
 import Search from './search'
@@ -90,12 +92,48 @@ import { getSetting } from '@/lib/actions/setting.actions'
 import { getTranslations } from 'next-intl/server'
 
 export default async function Header() {
+  const session     = await auth()
   const categories  = await getAllCategories()
   const { site }    = await getSetting()
   const t           = await getTranslations()
 
+  const firstName = session?.user?.name?.split(' ')[0]
+
   return (
     <header className='text-white'>
+      {/* Utility bar — Takealot-style top strip */}
+      <div
+        className='hidden sm:flex items-center justify-between px-4 py-1 text-xs text-white/85'
+        style={{ background: '#004E4C' }}
+      >
+        <span>
+          {firstName ? (
+            <>Hi, <span className='font-semibold text-white'>{firstName}</span></>
+          ) : (
+            <Link href='/sign-in' className='hover:text-[#FABB02] transition-colors'>
+              Hi, sign in
+            </Link>
+          )}
+        </span>
+        <div className='flex items-center gap-4'>
+          <Link
+            href='/become-vendor'
+            className='flex items-center gap-1 hover:text-[#FABB02] transition-colors'
+          >
+            <Store className='w-3.5 h-3.5' />
+            Become a Vendor
+          </Link>
+          <Link
+            href='/page/help'
+            className='flex items-center gap-1 hover:text-[#FABB02] transition-colors'
+          >
+            <HelpCircle className='w-3.5 h-3.5' />
+            Help
+          </Link>
+        </div>
+      </div>
+
+      {/* Main bar */}
       <div
         className='px-2'
         style={{
@@ -121,14 +159,40 @@ export default async function Header() {
 
           {/* Search — desktop */}
           <div className='hidden md:flex flex-1 max-w-2xl'>
-            <div className='w-full rounded-full ring-1 ring-white/15 focus-within:ring-2 focus-within:ring-[#FABB02] transition-shadow'>
+            <div className='relative w-full rounded-full ring-1 ring-white/15 focus-within:ring-2 focus-within:ring-[#FABB02] transition-shadow'>
               <Search
                 categories={categories}
                 siteName={site.name}
                 placeholder={t('Header.Search Site', { name: site.name })}
                 allLabel={t('Header.All')}
               />
+              <button
+                type='button'
+                aria-label='Search by image'
+                title='Visual search — coming soon'
+                className='absolute right-[52px] top-1/2 -translate-y-1/2 p-1.5 rounded-full text-gray-400 hover:text-[#006D6B] hover:bg-gray-100 transition-colors'
+              >
+                <Camera className='w-4 h-4' />
+              </button>
             </div>
+          </div>
+
+          {/* Notifications + Wishlist */}
+          <div className='hidden sm:flex items-center gap-1'>
+            <Link
+              href='/account/notifications'
+              aria-label='Notifications'
+              className='header-button relative p-2'
+            >
+              <Bell className='w-6 h-6' />
+            </Link>
+            <Link
+              href='/account/wishlist'
+              aria-label='Wishlist'
+              className='header-button p-2'
+            >
+              <Heart className='w-6 h-6' />
+            </Link>
           </div>
 
           <Menu />
@@ -136,18 +200,26 @@ export default async function Header() {
 
         {/* Search — mobile */}
         <div className='md:hidden py-2'>
-          <div className='w-full rounded-full ring-1 ring-white/15 focus-within:ring-2 focus-within:ring-[#FABB02] transition-shadow'>
+          <div className='relative w-full rounded-full ring-1 ring-white/15 focus-within:ring-2 focus-within:ring-[#FABB02] transition-shadow'>
             <Search
               categories={categories}
               siteName={site.name}
               placeholder={t('Header.Search Site', { name: site.name })}
               allLabel={t('Header.All')}
             />
+            <button
+              type='button'
+              aria-label='Search by image'
+              title='Visual search — coming soon'
+              className='absolute right-[52px] top-1/2 -translate-y-1/2 p-1.5 rounded-full text-gray-400 hover:text-[#006D6B] hover:bg-gray-100 transition-colors'
+            >
+              <Camera className='w-4 h-4' />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Gold seam — signature accent separating brand bar from sub-nav */}
+      {/* Gold seam */}
       <div
         className='h-[3px] w-full'
         style={{ background: 'linear-gradient(90deg, #FABB02 0%, #FFD65C 50%, #FABB02 100%)' }}
