@@ -153,24 +153,45 @@
     "Page": "Peji"
   },
   "Footer": {
-    "Select a currency": "Sarudza mari",
-    "Select a language": "Sarudza mutauro",
-    "Back to top": "Dzokera kumusoro",
-    "Get to Know Us": "Tizive",
+  "Select a currency": "Sarudza mari",
+  "Select a language": "Sarudza mutauro",
+  "Back to top": "Dzokera kumusoro",
+  "Shop": {
+    "Title": "SHOOPO",
+    "Todays Deals": "Zvipiriso zvenhasi",
+    "New Arrivals": "Zvitengeswa zvitsva",
+    "Best Sellers": "Zvinonyanya kutengwa",
+    "All Products": "Zvitengeswa zvose"
+  },
+  "Account": {
+    "Title": "AKHAWUNTI",
+    "My Account": "Akawunti yangu",
+    "My Orders": "Zvirongwa zvangu",
+    "Sign In": "Pinda",
+    "Register": "Nyoresa"
+  },
+  "Sell": {
+    "Title": "TENGESA",
+    "Become a Vendor": "Iva mutengesi",
+    "Vendor Dashboard": "Dheshibhodhi remutengesi",
+    "Vendor Products": "Zvitengeswa zvemutengesi",
+    "Vendor Orders": "Zvirongwa zvemutengesi"
+  },
+  "Help": {
+    "Title": "RUBATSIRO",
+    "Help Centre": "Nzvimbo yerubatsiro",
+    "Returns Policy": "Mitemo yekudzosa zvinhu",
+    "Shipping Info": "Ruzivo rwekutumira zvinhu",
+    "Privacy Policy": "Mitemo yechivande"
+  },
+  "Company": {
+    "Title": "KHAMPHANI",
+    "About Us": "Nezvedu",
     "Careers": "Mabasa",
     "Blog": "Blog",
-    "About name": "Nezve {name}",
-    "Make Money with Us": "Ita mari nesu",
-    "Sell products on": "Tengesa zvigadzirwa pa {name}",
-    "Become an Affiliate": "Iva muteveri",
-    "Advertise Your Products": "Kushambadzira zvigadzirwa zvako",
-    "Let Us Help You": "Tirege tikubatsire",
-    "Shipping Rates & Policies": "Mitengo yekutumira & mitemo",
-    "Returns & Replacements": "Kudzosera & kutsiva",
-    "Conditions of Use": "Mitemo yekushandisa",
-    "Privacy Notice": "Chiziviso chekuvanzika",
-    "Help": "Rubatsiro"
-  },
+    "Advertise": "Kushambadzira"
+  }
+},
   "Loading": {
     "Loading": "Kutakura..."
   },

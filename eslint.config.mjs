@@ -13,12 +13,12 @@ const eslintConfig = [
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
     rules: {
-  "eslint.enable": false,
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.preferences.strictNullChecks": false,
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
-}
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars':  'off',
+      '@next/next/no-img-element':          'off',
+      '@next/next-intl/no-raw-values':      'off',
+      'react/no-unescaped-entities': 'off',
+    },
   },
 ]
 

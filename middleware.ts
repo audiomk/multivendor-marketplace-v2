@@ -17,7 +17,7 @@ export async function middleware(req: NextRequest) {
   const user = token as any
 
   // Strip locale prefix to check path
-  const strippedPath = pathname.replace(/^\/[a-z]{2}(-[A-Z]{2})?/, '')
+  const strippedPath = pathname.replace(/^\/[a-z]{2,3}(-[A-Z]{2})?/, '')
 
   // Not logged in trying to access protected areas
   if (!token && (

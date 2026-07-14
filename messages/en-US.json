@@ -153,24 +153,45 @@
     "Page": "Page"
   },
   "Footer": {
-    "Select a currency": "Select a currency",
-    "Select a language": "Select a language",
-    "Back to top": "Back to top",
-    "Get to Know Us": "Get to Know Us",
+  "Select a currency": "Select a currency",
+  "Select a language": "Select a language",
+  "Back to top": "Back to top",
+  "Shop": {
+    "Title": "SHOP",
+    "Todays Deals": "Today's Deals",
+    "New Arrivals": "New Arrivals",
+    "Best Sellers": "Best Sellers",
+    "All Products": "All Products"
+  },
+  "Account": {
+    "Title": "ACCOUNT",
+    "My Account": "My Account",
+    "My Orders": "My Orders",
+    "Sign In": "Sign In",
+    "Register": "Register"
+  },
+  "Sell": {
+    "Title": "SELL",
+    "Become a Vendor": "Become a Vendor",
+    "Vendor Dashboard": "Vendor Dashboard",
+    "Vendor Products": "Vendor Products",
+    "Vendor Orders": "Vendor Orders"
+  },
+  "Help": {
+    "Title": "HELP",
+    "Help Centre": "Help Centre",
+    "Returns Policy": "Returns Policy",
+    "Shipping Info": "Shipping Info",
+    "Privacy Policy": "Privacy Policy"
+  },
+  "Company": {
+    "Title": "COMPANY",
+    "About Us": "About Us",
     "Careers": "Careers",
     "Blog": "Blog",
-    "About name": "About {name}",
-    "Make Money with Us": "Make Money with Us",
-    "Sell products on": "Sell products on {name}",
-    "Become an Affiliate": "Become an Affiliate",
-    "Advertise Your Products": "Advertise Your Products",
-    "Let Us Help You": "Let Us Help You",
-    "Shipping Rates & Policies": "Shipping Rates & Policies",
-    "Returns & Replacements": "Returns & Replacements",
-    "Conditions of Use": "Conditions of Use",
-    "Privacy Notice": "Privacy Notice",
-    "Help": "Help"
-  },
+    "Advertise": "Advertise"
+  }
+},
   "Loading": {
     "Loading": "Loading..."
   },

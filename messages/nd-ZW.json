@@ -153,24 +153,45 @@
     "Page": "Ikhasi"
   },
   "Footer": {
-    "Select a currency": "Khetha uhlobo lwemali",
-    "Select a language": "Khetha ulimi",
-    "Back to top": "Buyela phezulu",
-    "Get to Know Us": "Sazise",
-    "Careers": "Imisebenzi",
-    "Blog": "Ibhlog",
-    "About name": "Nge {name}",
-    "Make Money with Us": "Yenza imali lathi",
-    "Sell products on": "Thengisa impahla ku {name}",
-    "Become an Affiliate": "Yiba ngumhlanganyeli",
-    "Advertise Your Products": "Khangisa impahla yakho",
-    "Let Us Help You": "Sivumele sikusize",
-    "Shipping Rates & Policies": "Intengo yokuthumela lemithetho",
-    "Returns & Replacements": "Ukubuyisela lokufaka okunye",
-    "Conditions of Use": "Imithetho yokusebenzisa",
-    "Privacy Notice": "Isaziso semfihlo",
-    "Help": "Usizo"
+  "Select a currency": "Khetha imali",
+  "Select a language": "Khetha ulimi",
+  "Back to top": "Buyela phezulu",
+  "Shop": {
+    "Title": "THENGA",
+    "Todays Deals": "Izaphulelo zalamuhla",
+    "New Arrivals": "Izinto ezisanda kufika",
+    "Best Sellers": "Ezithengwa kakhulu",
+    "All Products": "Zonke izimpahla"
   },
+  "Account": {
+    "Title": "AKHAWUNTI",
+    "My Account": "Akhawunti yami",
+    "My Orders": "Izinto engizioderileyo",
+    "Sign In": "Ngena",
+    "Register": "Bhalisa"
+  },
+  "Sell": {
+    "Title": "THENGISA",
+    "Become a Vendor": "Ngenela ukuthengisa",
+    "Vendor Dashboard": "Ideshibhodi yomthengisi",
+    "Vendor Products": "Izimpahla zomthengisi",
+    "Vendor Orders": "Ama-oda omthengisi"
+  },
+  "Help": {
+    "Title": "USIZO",
+    "Help Centre": "Isikhungo sosizo",
+    "Returns Policy": "Imithetho yokubuyisela izimpahla",
+    "Shipping Info": "Ulwazi lokuthunyelwa kwezimpahla",
+    "Privacy Policy": "Imithetho yobumfihlo"
+  },
+  "Company": {
+    "Title": "INKAMPANI",
+    "About Us": "Ngathi",
+    "Careers": "Imisebenzi",
+    "Blog": "Ibhlogi",
+    "Advertise": "Khangisa"
+  }
+},
   "Loading": {
     "Loading": "Kuyalayisha..."
   },

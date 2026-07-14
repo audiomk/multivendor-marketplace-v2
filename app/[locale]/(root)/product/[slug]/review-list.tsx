@@ -81,7 +81,7 @@ export default function ReviewList({
     } catch (err) {
       toast({
         variant: 'destructive',
-        description: t('Error in fetching reviews'),
+        description: 'Error loading reviews. Please try again.',
       })
     }
   }

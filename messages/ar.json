@@ -154,24 +154,45 @@
   },
 
   "Footer": {
-    "Select a currency": "حدد عملة",
-    "Select a language": "حدد لغة",
-    "Back to top": "العودة إلى الأعلى",
-    "Get to Know Us": "تعرف علينا",
-    "Careers": "وظائف",
-    "Blog": "مدونة",
-    "About name": "حول {name}",
-    "Make Money with Us": "اكسب المال معنا",
-    "Sell products on": "بيع المنتجات على {name}",
-    "Become an Affiliate": "انضم كشريك تسويق",
-    "Advertise Your Products": "أعلن عن منتجاتك",
-    "Let Us Help You": "دعنا نساعدك",
-    "Shipping Rates & Policies": "أسعار وسياسات الشحن",
-    "Returns & Replacements": "المرتجعات والاستبدالات",
-    "Conditions of Use": "شروط الاستخدام",
-    "Privacy Notice": "إشعار الخصوصية",
-    "Help": "مساعدة"
+  "Select a currency": "اختر العملة",
+  "Select a language": "اختر اللغة",
+  "Back to top": "العودة إلى الأعلى",
+  "Shop": {
+    "Title": "المتجر",
+    "Todays Deals": "عروض اليوم",
+    "New Arrivals": "الوصول الجديد",
+    "Best Sellers": "الأكثر مبيعاً",
+    "All Products": "جميع المنتجات"
   },
+  "Account": {
+    "Title": "الحساب",
+    "My Account": "حسابي",
+    "My Orders": "طلباتي",
+    "Sign In": "تسجيل الدخول",
+    "Register": "تسجيل جديد"
+  },
+  "Sell": {
+    "Title": "للبيع",
+    "Become a Vendor": "كن بائعاً",
+    "Vendor Dashboard": "لوحة تحكم البائع",
+    "Vendor Products": "منتجات البائع",
+    "Vendor Orders": "طلبات البائع"
+  },
+  "Help": {
+    "Title": "المساعدة",
+    "Help Centre": "مركز المساعدة",
+    "Returns Policy": "سياسة الإرجاع",
+    "Shipping Info": "معلومات الشحن",
+    "Privacy Policy": "سياسة الخصوصية"
+  },
+  "Company": {
+    "Title": "الشركة",
+    "About Us": "من نحن",
+    "Careers": "الوظائف",
+    "Blog": "المدونة",
+    "Advertise": "إعلان"
+  }
+},
   "Loading": {
     "Loading": "جاري التحميل..."
   },

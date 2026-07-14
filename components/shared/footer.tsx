@@ -146,12 +146,12 @@ export default function Footer() {
 
           {/* Language + Currency */}
           <div className='flex items-center gap-3'>
-            <Select
-              value={locale}
-              onValueChange={(value) =>
-                router.push(pathname, { locale: value })
-              }
-            >
+           <Select
+  value={locale}
+  onValueChange={(value) => {
+    window.location.href = `/${value === 'en-US' ? '' : value}`
+  }}
+>
               <SelectTrigger className='w-36 bg-white/10 border-white/20
                                         text-white text-xs'>
                 <SelectValue />

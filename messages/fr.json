@@ -153,24 +153,45 @@
     "Page": "Page"
   },
   "Footer": {
-    "Select a currency": "Sélectionner une devise",
-    "Select a language": "Sélectionner une langue",
-    "Back to top": "Retour en haut",
-    "Get to Know Us": "Apprenez à nous connaître",
-    "Careers": "Carrières",
-    "Blog": "Blogue",
-    "About name": "À propos de {name}",
-    "Make Money with Us": "Gagnez de l'argent avec nous",
-    "Sell products on": "Vendez des produits sur {name}",
-    "Become an Affiliate": "Devenez affilié",
-    "Advertise Your Products": "Faites la publicité de vos produits",
-    "Let Us Help You": "Laissez-nous vous aider",
-    "Shipping Rates & Policies": "Tarifs et politiques d'expédition",
-    "Returns & Replacements": "Retours et remplacements",
-    "Conditions of Use": "Conditions d'utilisation",
-    "Privacy Notice": "Avis de confidentialité",
-    "Help": "Aide"
+  "Select a currency": "Sélectionner une devise",
+  "Select a language": "Sélectionner une langue",
+  "Back to top": "Retour en haut",
+  "Shop": {
+    "Title": "BOUTIQUE",
+    "Todays Deals": "Offres du jour",
+    "New Arrivals": "Nouveautés",
+    "Best Sellers": "Meilleures ventes",
+    "All Products": "Tous les produits"
   },
+  "Account": {
+    "Title": "COMPTE",
+    "My Account": "Mon compte",
+    "My Orders": "Mes commandes",
+    "Sign In": "Se connecter",
+    "Register": "S'inscrire"
+  },
+  "Sell": {
+    "Title": "VENDRE",
+    "Become a Vendor": "Devenir vendeur",
+    "Vendor Dashboard": "Tableau de bord vendeur",
+    "Vendor Products": "Produits du vendeur",
+    "Vendor Orders": "Commandes vendeur"
+  },
+  "Help": {
+    "Title": "AIDE",
+    "Help Centre": "Centre d'aide",
+    "Returns Policy": "Politique de retour",
+    "Shipping Info": "Informations de livraison",
+    "Privacy Policy": "Politique de confidentialité"
+  },
+  "Company": {
+    "Title": "ENTREPRISE",
+    "About Us": "À propos",
+    "Careers": "Carrières",
+    "Blog": "Blog",
+    "Advertise": "Publicité"
+  }
+},
   "Loading": {
     "Loading": "Chargement..."
   },

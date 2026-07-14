@@ -1,6 +1,5 @@
 import Image from 'next/image'
 import NextLink from 'next/link'
-import { Link } from '@/i18n/routing'
 import React from 'react'
 import Menu from '@/components/shared/header/menu'
 import { VendorNav } from './vendor-nav'
@@ -16,10 +15,10 @@ export default async function VendorLayout({
   const session = await auth()
   const user = session?.user as any
 
-  if (!session) redirect('/en-US/sign-in')
-  if (user?.role === 'User') redirect('/en-US/become-vendor')
+  if (!session) redirect('/sign-in')
+  if (user?.role === 'User') redirect('/become-vendor')
   if (user?.role === 'vendor' && !user?.vendorProfile?.isApproved) {
-    redirect('/en-US/vendor/pending')
+    redirect('/vendor/pending')
   }
 
   const { site } = await getSetting()

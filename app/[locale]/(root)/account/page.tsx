@@ -1,6 +1,6 @@
 import BrowsingHistoryList from '@/components/shared/browsing-history-list'
 import { Card, CardContent } from '@/components/ui/card'
-import { Home, PackageCheckIcon, User } from 'lucide-react'
+import { Home, PackageCheckIcon, User, ShieldCheck } from 'lucide-react'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import React from 'react'
@@ -9,11 +9,14 @@ const PAGE_TITLE = 'Your Account'
 export const metadata: Metadata = {
   title: PAGE_TITLE,
 }
+
 export default function AccountPage() {
   return (
     <div>
       <h1 className='h1-bold py-4'>{PAGE_TITLE}</h1>
-      <div className='grid md:grid-cols-3 gap-4 items-stretch'>
+      
+      {/* Updated to grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 for cleaner 4-card spacing */}
+      <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 items-stretch'>
         <Card>
           <Link href='/account/orders'>
             <CardContent className='flex items-start gap-4 p-6'>
@@ -61,7 +64,25 @@ export default function AccountPage() {
             </CardContent>
           </Link>
         </Card>
+
+        {/* New Verify Identity Card */}
+        <Card>
+          <Link href='/account/verification'>
+            <CardContent className='flex items-start gap-4 p-6'>
+              <div>
+                <ShieldCheck className='w-12 h-12' />
+              </div>
+              <div>
+                <h2 className='text-xl font-bold'>Verify Identity</h2>
+                <p className='text-muted-foreground'>
+                  Upload documentation to verify your identity and protect your account
+                </p>
+              </div>
+            </CardContent>
+          </Link>
+        </Card>
       </div>
+      
       <BrowsingHistoryList className='mt-16' />
     </div>
   )

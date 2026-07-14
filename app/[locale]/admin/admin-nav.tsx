@@ -34,6 +34,9 @@ const links = [
     title: 'Settings',
     href: '/admin/settings',
   },
+  { title: 'Verifications',
+    href: '/admin/verifications'
+  },
 ]
 export function AdminNav({
   className,

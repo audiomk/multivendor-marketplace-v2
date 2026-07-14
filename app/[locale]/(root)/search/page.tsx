@@ -9,6 +9,7 @@ import {
   getAllTags,
 } from '@/lib/actions/product.actions'
 import { IProduct } from '@/lib/db/models/product.model'
+import PriceSlider from '@/components/shared/search/price-slider'
 import ProductSortSelector from '@/components/shared/product/product-sort-selector'
 import { getFilterUrl, toSlug } from '@/lib/utils'
 import Rating from '@/components/shared/product/rating'
@@ -22,21 +23,6 @@ const sortOrders = [
   { value: 'newest-arrivals', name: 'Newest arrivals' },
   { value: 'avg-customer-review', name: 'Avg. customer review' },
   { value: 'best-selling', name: 'Best selling' },
-]
-
-const prices = [
-  {
-    name: '$1 to $20',
-    value: '1-20',
-  },
-  {
-    name: '$21 to $50',
-    value: '21-50',
-  },
-  {
-    name: '$51 to $1000',
-    value: '51-1000',
-  },
 ]
 
 export async function generateMetadata(props: {
@@ -191,27 +177,13 @@ export default async function SearchPage(props: {
               </ul>
             </div>
             <div>
-              <div className='font-bold'>{t('Search.Price')}</div>
-              <ul>
-                <li>
-                  <Link
-                    className={`${'all' === price && 'text-primary'}`}
-                    href={getFilterUrl({ price: 'all', params })}
-                  >
-                    {t('Search.All')}
-                  </Link>
-                </li>
-                {prices.map((p) => (
-                  <li key={p.value}>
-                    <Link
-                      href={getFilterUrl({ price: p.value, params })}
-                      className={`${p.value === price && 'text-primary'}`}
-                    >
-                      {p.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              <div className='font-bold mb-3'>{t('Search.Price')}</div>
+              <PriceSlider
+                minPrice={0}
+                maxPrice={1000}
+                currentMin={price !== 'all' ? Number(price.split('-')[0]) : 0}
+                currentMax={price !== 'all' ? Number(price.split('-')[1]) : 1000}
+              />
             </div>
             <div>
               <div className='font-bold'>{t('Search.Customer Review')}</div>

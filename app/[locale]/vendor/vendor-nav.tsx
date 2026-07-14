@@ -10,6 +10,7 @@ const links = [
   { title: 'Orders',    href: '/vendor/orders' },
   { title: 'Earnings',  href: '/vendor/earnings' },
   { title: 'Settings',  href: '/vendor/settings' },
+  { title: 'Verification', href: '/vendor/verification' },
 ]
 
 export function VendorNav({

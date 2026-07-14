@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use server'
 
 import { connectToDatabase } from '@/lib/db'
@@ -7,6 +8,29 @@ import User from '@/lib/db/models/user.model'
 import { auth } from '@/auth'
 import { revalidatePath } from 'next/cache'
 import { formatError } from '../utils'
+
+// Helper — throws if not logged in, returns userId
+async function requireSession() {
+  const session = await auth()
+  if (!session?.user) throw new Error('Not logged in')
+  return { session, userId: (session.user as any).id as string }
+}
+
+// Helper — throws if not an approved vendor
+async function requireApprovedVendor() {
+  const { session, userId } = await requireSession()
+  await connectToDatabase()
+  const dbUser = await User.findById(userId)
+    .select('role vendorProfile')
+    .lean() as any
+  if (dbUser?.role !== 'vendor') {
+    throw new Error('Unauthorized — vendor role required')
+  }
+  if (!dbUser?.vendorProfile?.isApproved) {
+    throw new Error('Your vendor account is pending approval')
+  }
+  return { session, userId, dbUser }
+}
 
 // --- Vendor Application & Dashboard ---
 
@@ -20,9 +44,7 @@ export async function applyToBeVendor({
   bio: string
 }) {
   try {
-    const session = await auth()
-    if (!session) throw new Error('Not logged in')
-
+    const { userId } = await requireSession()
     await connectToDatabase()
 
     const slugTaken = await User.findOne({
@@ -30,7 +52,7 @@ export async function applyToBeVendor({
     })
     if (slugTaken) throw new Error('That store URL is already taken')
 
-    await User.findByIdAndUpdate((session.user as any).id, {
+    await User.findByIdAndUpdate(userId, {
       role: 'vendor',
       vendorProfile: {
         storeName,
@@ -49,24 +71,21 @@ export async function applyToBeVendor({
 
 export async function getVendorStats() {
   try {
-    const session = await auth()
-    if (!session) throw new Error('Not logged in')
-    const vendorId = (session.user as any).id
-
+    const { userId } = await requireSession()
     await connectToDatabase()
 
     const [productCount, orders] = await Promise.all([
-      Product.countDocuments({ vendorId, isPublished: true }),
-      Order.find({ 'vendorOrders.vendorId': vendorId }).lean(),
+      Product.countDocuments({ vendorId: userId, isPublished: true }),
+      Order.find({ 'vendorOrders.vendorId': userId }).lean(),
     ])
 
     let totalRevenue = 0
-    let totalOrders = 0
+    let totalOrders  = 0
     let pendingOrders = 0
 
     for (const order of orders) {
       for (const vo of (order as any).vendorOrders) {
-        if (vo.vendorId?.toString() === vendorId) {
+        if (vo.vendorId?.toString() === userId) {
           totalRevenue += vo.vendorPayout || 0
           totalOrders++
           if (vo.status === 'pending') pendingOrders++
@@ -86,31 +105,28 @@ export async function getVendorStats() {
 // --- Product Management ---
 
 export async function getVendorProducts({
-  page = 1,
+  page  = 1,
   limit = 10,
 }: {
-  page?: number
+  page?:  number
   limit?: number
 }) {
   try {
-    const session = await auth()
-    if (!session) throw new Error('Not logged in')
-    const vendorId = (session.user as any).id
-
+    const { userId } = await requireSession()
     await connectToDatabase()
 
-    const products = await Product.find({ vendorId })
+    const products = await Product.find({ vendorId: userId })
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
       .lean()
 
-    const total = await Product.countDocuments({ vendorId })
+    const total = await Product.countDocuments({ vendorId: userId })
 
     return {
       success: true,
       data: {
-        products: JSON.parse(JSON.stringify(products)),
+        products:   JSON.parse(JSON.stringify(products)),
         totalPages: Math.ceil(total / limit),
         total,
       },
@@ -122,24 +138,16 @@ export async function getVendorProducts({
 
 export async function createVendorProduct(data: any) {
   try {
-    const session = await auth()
-    if (!session || (session.user as any).role !== 'vendor') {
-      throw new Error('Unauthorized')
-    }
-    const vendorId = (session.user as any).id
-
-    await connectToDatabase()
+    const { userId } = await requireApprovedVendor()
 
     let slug = data.name
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '')
       .replace(/\s+/g, '-')
-
     const existing = await Product.findOne({ slug })
     if (existing) slug = `${slug}-${Date.now()}`
 
-    await Product.create({ ...data, slug, vendorId, isPublished: true })
-
+    await Product.create({ ...data, slug, vendorId: userId, isPublished: true })
     revalidatePath('/vendor/products')
     return { success: true, message: 'Product created' }
   } catch (error) {
@@ -149,14 +157,13 @@ export async function createVendorProduct(data: any) {
 
 export async function updateVendorProduct(id: string, data: any) {
   try {
-    const session = await auth()
-    const vendorId = (session?.user as any)?.id
-    if (!vendorId) throw new Error('Unauthorized')
+    const { userId } = await requireApprovedVendor()
 
-    await connectToDatabase()
-
-    await Product.findOneAndUpdate({ _id: id, vendorId }, data, { new: true })
-
+    await Product.findOneAndUpdate(
+      { _id: id, vendorId: userId },
+      data,
+      { new: true }
+    )
     revalidatePath('/vendor/products')
     return { success: true, message: 'Product updated' }
   } catch (error) {
@@ -166,13 +173,12 @@ export async function updateVendorProduct(id: string, data: any) {
 
 export async function deleteVendorProduct(id: string) {
   try {
-    const session = await auth()
-    const vendorId = (session?.user as any)?.id
-    if (!vendorId) throw new Error('Unauthorized')
+    const { userId } = await requireApprovedVendor()
 
-    await connectToDatabase()
-    await Product.findOneAndUpdate({ _id: id, vendorId }, { isPublished: false })
-
+    await Product.findOneAndUpdate(
+      { _id: id, vendorId: userId },
+      { isPublished: false }
+    )
     revalidatePath('/vendor/products')
     return { success: true, message: 'Product removed' }
   } catch (error) {
@@ -183,20 +189,17 @@ export async function deleteVendorProduct(id: string) {
 // --- Order Management ---
 
 export async function getVendorOrders({
-  page = 1,
+  page  = 1,
   limit = 10,
 }: {
-  page?: number
+  page?:  number
   limit?: number
 }) {
   try {
-    const session = await auth()
-    const vendorId = (session?.user as any)?.id
-    if (!vendorId) throw new Error('Unauthorized')
-
+    const { userId } = await requireSession()
     await connectToDatabase()
 
-    const orders = await Order.find({ 'vendorOrders.vendorId': vendorId })
+    const orders = await Order.find({ 'vendorOrders.vendorId': userId })
       .populate('user', 'name email')
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
@@ -204,13 +207,13 @@ export async function getVendorOrders({
       .lean()
 
     const total = await Order.countDocuments({
-      'vendorOrders.vendorId': vendorId,
+      'vendorOrders.vendorId': userId,
     })
 
     return {
       success: true,
       data: {
-        orders: JSON.parse(JSON.stringify(orders)),
+        orders:     JSON.parse(JSON.stringify(orders)),
         totalPages: Math.ceil(total / limit),
         total,
       },
@@ -221,9 +224,9 @@ export async function getVendorOrders({
 }
 
 export async function updateVendorOrderStatus(
-  orderId: string,
+  orderId:  string,
   vendorId: string,
-  status: string
+  status:   string
 ) {
   try {
     await connectToDatabase()
@@ -240,33 +243,47 @@ export async function updateVendorOrderStatus(
 
 // --- Public / Storefront Helpers ---
 
-export async function getVendorStore(slug: string) {
+export async function getVendorStore(
+  slug:      string,
+  query?:    string,
+  category?: string
+) {
   try {
     await connectToDatabase()
 
     const vendor = await User.findOne({
-      'vendorProfile.storeSlug': slug,
-      'vendorProfile.isApproved': true,
+      'vendorProfile.storeSlug':   slug,
+      'vendorProfile.isApproved':  true,
     }).lean()
 
     if (!vendor) throw new Error('Store not found')
 
-    const products = await Product.find({
-      vendorId: (vendor as any)._id,
+    const filter: any = {
+      vendorId:    (vendor as any)._id,
       isPublished: true,
-    })
+    }
+    if (query)    filter.name     = { $regex: query, $options: 'i' }
+    if (category) filter.category = category
+
+    const products = await Product.find(filter)
       .sort({ createdAt: -1 })
       .lean()
+
+    const allCategories = await Product.find({
+      vendorId:    (vendor as any)._id,
+      isPublished: true,
+    }).distinct('category')
 
     return {
       success: true,
       data: {
-        vendor: JSON.parse(JSON.stringify(vendor)),
-        products: JSON.parse(JSON.stringify(products)),
+        vendor:     JSON.parse(JSON.stringify(vendor)),
+        products:   JSON.parse(JSON.stringify(products)),
+        categories: allCategories,
       },
     }
   } catch (error) {
-    return { success: false, message: formatError(error) }
+    return { success: false, message: formatError(error), data: null }
   }
 }
 
