@@ -103,8 +103,14 @@ export default function CredentialsSignInForm() {
             )}
           />
 
-          <div>
+          <div className='flex items-center justify-between'>
             <Button type='submit'>Sign In</Button>
+            <Link
+              href='/forgot-password'
+              className='text-sm text-[#006D6B] hover:underline'
+            >
+              Forgot password?
+            </Link>
           </div>
           <div className='text-sm'>
             By signing in, you agree to {site.name}&apos;s{' '}

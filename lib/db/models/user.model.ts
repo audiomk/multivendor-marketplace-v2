@@ -31,7 +31,7 @@ export interface IVerification {
   isVerified: boolean
 }
 
-// 1. Remove "extends Document". Define just the shape of your data.
+// 1. Updated interface containing the new password-reset properties
 export interface IUser {
   email: string
   name: string
@@ -41,6 +41,8 @@ export interface IUser {
   emailVerified: boolean
   vendorProfile?: IVendorProfile | null
   verification?: IVerification | null
+  resetToken?: string | null           // <-- Added this
+  resetTokenExpires?: Date | null      // <-- Added this
 }
 
 const vendorProfileSchema = new Schema<IVendorProfile>({
@@ -85,6 +87,8 @@ const userSchema = new Schema<IUser>(
     emailVerified: { type: Boolean, default: false },
     vendorProfile: { type: vendorProfileSchema, default: null },
     verification:  { type: verificationSchema,  default: null },
+    resetToken:        { type: String, default: null },
+    resetTokenExpires: { type: Date, default: null },
   },
   { timestamps: true }
 )
