@@ -100,22 +100,18 @@ export default async function Header() {
   const firstName = session?.user?.name?.split(' ')[0]
 
   return (
-    <header className='text-white'>
-      {/* Utility bar — Takealot-style top strip */}
+    <header>
+      {/* Utility bar */}
       <div
         className='hidden sm:flex items-center justify-between px-4 py-1 text-xs text-white/85'
         style={{ background: '#004E4C' }}
       >
         <span>
-          {firstName ? (
+          {firstName && (
             <>Hi, <span className='font-semibold text-white'>{firstName}</span></>
-          ) : (
-            <Link href='/sign-in' className='hover:text-[#FABB02] transition-colors'>
-              Hi, sign in
-            </Link>
           )}
         </span>
-        <div className='flex items-center gap-4'>
+        <div className='flex items-center gap-4 ml-auto'>
           <Link
             href='/become-vendor'
             className='flex items-center gap-1 hover:text-[#FABB02] transition-colors'
@@ -133,13 +129,8 @@ export default async function Header() {
         </div>
       </div>
 
-      {/* Main bar */}
-      <div
-        className='px-2'
-        style={{
-          background: 'linear-gradient(180deg, #00847F 0%, #006D6B 60%, #005B59 100%)',
-        }}
-      >
+      {/* Main bar — inverted: white bg, teal lettering, logo through cart */}
+      <div className='px-2 bg-white text-[#006D6B] border-b border-gray-100'>
         <div className='flex items-center gap-2'>
           {/* Logo */}
           <Link
@@ -154,12 +145,12 @@ export default async function Header() {
               className='mr-2'
             />
             <span style={{ color: '#FABB02' }}>Indaba</span>
-            <span className='text-white ml-1'>Cart</span>
+            <span className='text-[#006D6B] ml-1'>Cart</span>
           </Link>
 
           {/* Search — desktop */}
           <div className='hidden md:flex flex-1 max-w-2xl'>
-            <div className='relative w-full rounded-full ring-1 ring-white/15 focus-within:ring-2 focus-within:ring-[#FABB02] transition-shadow'>
+            <div className='relative w-full rounded-full border border-gray-200 focus-within:border-[#FABB02] focus-within:ring-2 focus-within:ring-[#FABB02]/40 transition-all'>
               <Search
                 categories={categories}
                 siteName={site.name}
@@ -178,29 +169,31 @@ export default async function Header() {
           </div>
 
           {/* Notifications + Wishlist */}
-          <div className='hidden sm:flex items-center gap-1'>
+          <div className='hidden sm:flex items-center gap-1 text-[#006D6B]'>
             <Link
               href='/account/notifications'
               aria-label='Notifications'
-              className='header-button relative p-2'
+              className='header-button relative p-2 hover:text-[#FABB02] transition-colors'
             >
               <Bell className='w-6 h-6' />
             </Link>
             <Link
               href='/account/wishlist'
               aria-label='Wishlist'
-              className='header-button p-2'
+              className='header-button p-2 hover:text-[#FABB02] transition-colors'
             >
               <Heart className='w-6 h-6' />
             </Link>
           </div>
 
-          <Menu />
+          <div className='text-[#006D6B]'>
+            <Menu />
+          </div>
         </div>
 
         {/* Search — mobile */}
         <div className='md:hidden py-2'>
-          <div className='relative w-full rounded-full ring-1 ring-white/15 focus-within:ring-2 focus-within:ring-[#FABB02] transition-shadow'>
+          <div className='relative w-full rounded-full border border-gray-200 focus-within:border-[#FABB02] focus-within:ring-2 focus-within:ring-[#FABB02]/40 transition-all'>
             <Search
               categories={categories}
               siteName={site.name}
@@ -225,9 +218,9 @@ export default async function Header() {
         style={{ background: 'linear-gradient(90deg, #FABB02 0%, #FFD65C 50%, #FABB02 100%)' }}
       />
 
-      {/* Sub nav */}
+      {/* Sub nav — unchanged, still teal */}
       <div
-        className='flex items-center px-3 shadow-[0_2px_6px_rgba(0,0,0,0.15)]'
+        className='flex items-center px-3 text-white shadow-[0_2px_6px_rgba(0,0,0,0.15)]'
         style={{ background: '#00504E' }}
       >
         <Sidebar categories={categories} />
