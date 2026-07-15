@@ -37,10 +37,11 @@ export default function VendorVerificationForm({
 }: {
   verification: any
 }) {
-  const { toast } = useToast()
+  const { toast }  = useToast()
   const videoRef   = useRef<HTMLVideoElement>(null)
   const canvasRef  = useRef<HTMLCanvasElement>(null)
-  const [stream,   setStream]   = useState<MediaStream | null>(null)
+
+  const [stream,        setStream]        = useState<MediaStream | null>(null)
   const [selfiePreview, setSelfiePreview] = useState<string>('')
   const [selfieUrl,     setSelfieUrl]     = useState<string>('')
   const [taxExpiry,     setTaxExpiry]     = useState<string>('')
@@ -55,14 +56,20 @@ export default function VendorVerificationForm({
   // --- Camera ---
   const startCamera = async () => {
     try {
-      const s = await navigator.mediaDevices.getUserMedia({ video: true })
+      const s = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'user',
+          width:  { ideal: 640 },
+          height: { ideal: 480 },
+        }
+      })
       setStream(s)
       setCameraOpen(true)
       setTimeout(() => {
         if (videoRef.current) videoRef.current.srcObject = s
       }, 100)
     } catch {
-      toast({ description: 'Camera access denied', variant: 'destructive' })
+      toast({ description: 'Camera access denied. Please allow camera permission.', variant: 'destructive' })
     }
   }
 
@@ -110,19 +117,11 @@ export default function VendorVerificationForm({
   }
 
   const handleSelfieSubmit = async () => {
-    if (!selfieUrl && !selfiePreview) {
-      toast({ description: 'Please take or upload a selfie', variant: 'destructive' })
+    if (!selfieUrl) {
+      toast({ description: 'Please upload your selfie using the Upload button', variant: 'destructive' })
       return
     }
     setLoadingSelfie(true)
-
-    // If it's a captured photo (dataUrl), we need to upload it
-    if (selfiePreview && !selfieUrl) {
-      toast({ description: 'Please upload your selfie using the upload button', variant: 'destructive' })
-      setLoadingSelfie(false)
-      return
-    }
-
     const res = await submitSelfieVerification({ selfieUrl })
     toast({ description: res.message, variant: res.success ? 'default' : 'destructive' })
     setLoadingSelfie(false)
@@ -145,9 +144,7 @@ export default function VendorVerificationForm({
             </p>
           )}
           {verification.idStatus === 'approved' ? (
-            <p className='text-green-600 text-sm'>
-              Your ID has been verified ✓
-            </p>
+            <p className='text-green-600 text-sm'>Your ID has been verified ✓</p>
           ) : (
             <>
               <p className='text-sm text-muted-foreground'>
@@ -167,7 +164,7 @@ export default function VendorVerificationForm({
                   <UploadButton
                     endpoint='idDocumentUploader'
                     onClientUploadComplete={res => setIdFrontUrl(res[0].url)}
-                    onUploadError={(_error) => { 
+                    onUploadError={(_error) => {
                       toast({ description: 'Upload failed', variant: 'destructive' })
                     }}
                   />
@@ -185,7 +182,7 @@ export default function VendorVerificationForm({
                   <UploadButton
                     endpoint='idDocumentUploader'
                     onClientUploadComplete={res => setIdBackUrl(res[0].url)}
-                    onUploadError={(_error) => { 
+                    onUploadError={(_error) => {
                       toast({ description: 'Upload failed', variant: 'destructive' })
                     }}
                   />
@@ -234,16 +231,14 @@ export default function VendorVerificationForm({
               </p>
               <div className='space-y-3'>
                 <div>
-                  <p className='text-xs font-medium mb-2'>Tax Clearance Document</p>
+                  <p className='text-xs font-medium mb-2'>Tax Clearance Document (PDF or Image)</p>
                   {(taxDocUrl || verification.taxDocUrl) && (
-                    <p className='text-xs text-green-600 mb-2'>
-                      ✓ Document uploaded
-                    </p>
+                    <p className='text-xs text-green-600 mb-2'>✓ Document uploaded</p>
                   )}
                   <UploadButton
                     endpoint='taxDocumentUploader'
                     onClientUploadComplete={res => setTaxDocUrl(res[0].url)}
-                    onUploadError={(_error) => { 
+                    onUploadError={(_error) => {
                       toast({ description: 'Upload failed', variant: 'destructive' })
                     }}
                   />
@@ -290,23 +285,26 @@ export default function VendorVerificationForm({
           ) : (
             <>
               <p className='text-sm text-muted-foreground'>
-                Take a clear selfie or upload a photo. Our team will compare it
-                to your ID document.
+                Take a clear selfie or upload a photo. Our team will compare it to your ID.
               </p>
 
-              {/* Camera */}
+              {/* Live camera */}
               {cameraOpen && (
                 <div className='space-y-2'>
                   <video
                     ref={videoRef}
                     autoPlay
                     playsInline
-                    className='w-full rounded-lg border'
+                    muted
+                    className='w-full rounded-lg border bg-black'
                   />
                   <canvas ref={canvasRef} className='hidden' />
                   <div className='flex gap-2'>
-                    <Button onClick={capturePhoto} className='flex-1'
-                      style={{ background: '#006D6B' }}>
+                    <Button
+                      onClick={capturePhoto}
+                      className='flex-1'
+                      style={{ background: '#006D6B' }}
+                    >
                       <Camera size={16} className='mr-2' /> Capture Photo
                     </Button>
                     <Button onClick={stopCamera} variant='outline' className='flex-1'>
@@ -316,7 +314,7 @@ export default function VendorVerificationForm({
                 </div>
               )}
 
-              {/* Preview captured photo */}
+              {/* Captured photo preview */}
               {selfiePreview && !cameraOpen && (
                 <div className='space-y-2'>
                   <Image
@@ -326,23 +324,27 @@ export default function VendorVerificationForm({
                     className='rounded-lg border mx-auto object-cover'
                   />
                   <p className='text-xs text-center text-muted-foreground'>
-                    Photo captured — now upload it below
+                    Photo captured — now use the Upload button below to submit it
                   </p>
                 </div>
               )}
 
               {/* Uploaded selfie preview */}
-              {selfieUrl && (
-                <Image
-                  src={selfieUrl}
-                  alt='Selfie'
-                  width={200} height={200}
-                  className='rounded-lg border mx-auto object-cover'
-                />
+              {selfieUrl && !cameraOpen && (
+                <div className='space-y-1'>
+                  <Image
+                    src={selfieUrl}
+                    alt='Selfie'
+                    width={200} height={200}
+                    className='rounded-lg border mx-auto object-cover'
+                  />
+                  <p className='text-xs text-center text-green-600'>✓ Photo uploaded</p>
+                </div>
               )}
 
-              <div className='flex gap-2'>
-                {!cameraOpen && (
+              {/* Camera + upload buttons */}
+              {!cameraOpen && (
+                <div className='flex gap-2'>
                   <Button
                     onClick={startCamera}
                     variant='outline'
@@ -350,27 +352,27 @@ export default function VendorVerificationForm({
                   >
                     <Camera size={16} className='mr-2' /> Use Camera
                   </Button>
-                )}
-                <div className='flex-1'>
-                  <UploadButton
-                    endpoint='selfieUploader'
-                    onClientUploadComplete={res => {
-                      setSelfieUrl(res[0].url)
-                      setSelfiePreview('')
-                    }}
-                    onUploadError={(_error) => { 
-                      toast({ description: 'Upload failed', variant: 'destructive' })
-                    }}
-                  />
+                  <div className='flex-1'>
+                    <UploadButton
+                      endpoint='selfieUploader'
+                      onClientUploadComplete={res => {
+                        setSelfieUrl(res[0].url)
+                        setSelfiePreview('')
+                      }}
+                      onUploadError={(_error) => {
+                        toast({ description: 'Upload failed', variant: 'destructive' })
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
               <Button
                 onClick={handleSelfieSubmit}
                 disabled={
                   loadingSelfie ||
                   verification.selfieStatus === 'pending' ||
-                  (!selfieUrl && !selfiePreview)
+                  !selfieUrl
                 }
                 style={{ background: '#006D6B' }}
                 className='w-full'
