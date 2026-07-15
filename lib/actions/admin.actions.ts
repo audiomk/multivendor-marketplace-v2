@@ -10,7 +10,8 @@ import { formatError } from '../utils'
 
 async function checkAdmin() {
   const session = await auth()
-  if ((session?.user as any)?.role !== 'admin') {
+  const role = (session?.user as any)?.role
+  if (role !== 'admin' && role !== 'Admin') {
     throw new Error('Unauthorized')
   }
   return session
