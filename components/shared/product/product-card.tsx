@@ -8,7 +8,8 @@ import { formatNumber, generateId, round2 } from '@/lib/utils'
 import ProductPrice from './product-price'
 import ImageHover from './image-hover'
 import AddToCart from './add-to-cart'
-import { Store } from 'lucide-react'
+// Added BadgeCheck to the imports
+import { Store, BadgeCheck } from 'lucide-react'
 
 const ProductCard = ({
   product,
@@ -21,7 +22,9 @@ const ProductCard = ({
   hideBorder?: boolean
   hideAddToCart?: boolean
 }) => {
-  const vendor = (product as any).vendorId?.vendorProfile
+  const vendorData  = (product as any).vendorId
+const vendor      = vendorData?.vendorProfile
+const isVerified  = vendorData?.verification?.isVerified || false
 
   const ProductImage = () => (
     <Link href={`/product/${product.slug}`}>
@@ -33,15 +36,14 @@ const ProductCard = ({
             alt={product.name}
           />
         ) : (
-          <div className='relative h-52'>
-            <Image
-              src={product.images[0]}
-              alt={product.name}
-              fill
-              sizes='80vw'
-              className='object-contain'
-            />
-          </div>
+          // Cleaned up double relative h-52 nesting here
+          <Image
+            src={product.images[0]}
+            alt={product.name}
+            fill
+            sizes='80vw'
+            className='object-contain'
+          />
         )}
       </div>
     </Link>
@@ -53,16 +55,19 @@ const ProductCard = ({
 
       {/* Vendor store link */}
       {vendor?.storeSlug && (
-        <Link
-          href={`/store/${vendor.storeSlug}`}
-          className='flex items-center justify-center gap-1
-                     text-xs text-blue-600 hover:underline'
-          onClick={e => e.stopPropagation()}
-        >
-          <Store size={10} />
-          {vendor.storeName}
-        </Link>
-      )}
+  <Link
+    href={`/store/${vendor.storeSlug}`}
+    className='flex items-center justify-center gap-1
+               text-xs text-blue-600 hover:underline'
+    onClick={e => e.stopPropagation()}
+  >
+    <Store size={10} />
+    {vendor.storeName}
+    {isVerified && (
+      <BadgeCheck size={10} className='text-green-600' />
+    )}
+  </Link>
+)}
 
       <Link
         href={`/product/${product.slug}`}
@@ -93,17 +98,17 @@ const ProductCard = ({
       <AddToCart
         minimal
         item={{
-          clientId:     generateId(),
-          product:      product._id,
-          size:         product.sizes[0],
-          color:        product.colors[0],
+          clientId: generateId(),
+          product: product._id,
+          size: product.sizes[0],
+          color: product.colors[0],
           countInStock: product.countInStock,
-          name:         product.name,
-          slug:         product.slug,
-          category:     product.category,
-          price:        round2(product.price),
-          quantity:     1,
-          image:        product.images[0],
+          name: product.name,
+          slug: product.slug,
+          category: product.category,
+          price: round2(product.price),
+          quantity: 1,
+          image: product.images[0],
         }}
       />
     </div>

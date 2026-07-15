@@ -298,14 +298,15 @@ export async function getVendorInfoForProducts(productIds: string[]) {
       .select('_id vendorId')
       .lean() as any[]
 
-    const map: Record<string, { storeName: string; storeSlug: string }> = {}
+    const map: Record<string, { storeName: string; storeSlug: string; isVerified: boolean }> = {}
 
     for (const product of products) {
       if (product.vendorId?.vendorProfile) {
         map[product._id.toString()] = {
-          storeName: product.vendorId.vendorProfile.storeName,
-          storeSlug: product.vendorId.vendorProfile.storeSlug,
-        }
+  storeName: product.vendorId.vendorProfile.storeName,
+  storeSlug: product.vendorId.vendorProfile.storeSlug,
+  isVerified: product.vendorId.verification?.isVerified || false,
+}
       }
     }
 

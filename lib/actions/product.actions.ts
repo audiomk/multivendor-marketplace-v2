@@ -55,11 +55,11 @@ export async function getProductById(productId: string) {
   return JSON.parse(JSON.stringify(product)) as IProduct
 }
 
-// GET ONE PRODUCT BY SLUG — with vendor populated
+// GET ONE PRODUCT BY SLUG — with vendor and verification populated
 export async function getProductBySlug(slug: string) {
   await connectToDatabase()
   const product = await Product.findOne({ slug, isPublished: true })
-    .populate('vendorId', 'vendorProfile')
+    .populate('vendorId', 'vendorProfile verification')
   if (!product) throw new Error('Product not found')
   return JSON.parse(JSON.stringify(product)) as IProduct
 }
@@ -85,14 +85,14 @@ export async function getAllProductsForAdmin({
     : {}
 
   const order: Record<string, 1 | -1> =
-    sort === 'best-selling'      ? { numSales: -1 } :
-    sort === 'price-low-to-high' ? { price: 1 }     :
-    sort === 'price-high-to-low' ? { price: -1 }    :
-    sort === 'avg-customer-review' ? { avgRating: -1 } :
+    sort === 'best-selling'        ? { numSales: -1 }    :
+    sort === 'price-low-to-high'   ? { price: 1 }        :
+    sort === 'price-high-to-low'   ? { price: -1 }       :
+    sort === 'avg-customer-review' ? { avgRating: -1 }   :
     { _id: -1 }
 
   const products = await Product.find({ ...queryFilter })
-    .populate('vendorId', 'vendorProfile')
+    .populate('vendorId', 'vendorProfile verification')
     .sort(order)
     .skip(limit * (Number(page) - 1))
     .limit(limit)
@@ -101,11 +101,11 @@ export async function getAllProductsForAdmin({
   const countProducts = await Product.countDocuments({ ...queryFilter })
 
   return {
-    products: JSON.parse(JSON.stringify(products)) as IProduct[],
-    totalPages: Math.ceil(countProducts / pageSize),
+    products:      JSON.parse(JSON.stringify(products)) as IProduct[],
+    totalPages:    Math.ceil(countProducts / pageSize),
     totalProducts: countProducts,
-    from: pageSize * (Number(page) - 1) + 1,
-    to: pageSize * (Number(page) - 1) + products.length,
+    from:          pageSize * (Number(page) - 1) + 1,
+    to:            pageSize * (Number(page) - 1) + products.length,
   }
 }
 
@@ -125,16 +125,16 @@ export async function getProductsForCard({
   const products = await Product.find(
     { tags: { $in: [tag] }, isPublished: true },
     {
-      name: 1,
-      href: { $concat: ['/product/', '$slug'] },
+      name:  1,
+      href:  { $concat: ['/product/', '$slug'] },
       image: { $arrayElemAt: ['$images', 0] },
     }
   )
     .sort({ createdAt: 'desc' })
     .limit(limit)
   return JSON.parse(JSON.stringify(products)) as {
-    name: string
-    href: string
+    name:  string
+    href:  string
     image: string
   }[]
 }
@@ -149,9 +149,10 @@ export async function getProductsByTag({
 }) {
   await connectToDatabase()
   const products = await Product.find({
-    tags: { $in: [tag] },
+    tags:        { $in: [tag] },
     isPublished: true,
   })
+    .populate('vendorId', 'vendorProfile verification')
     .sort({ createdAt: 'desc' })
     .limit(limit)
   return JSON.parse(JSON.stringify(products)) as IProduct[]
@@ -162,12 +163,12 @@ export async function getRelatedProductsByCategory({
   category,
   productId,
   limit = 4,
-  page = 1,
+  page  = 1,
 }: {
-  category: string
+  category:  string
   productId: string
-  limit?: number
-  page: number
+  limit?:    number
+  page:      number
 }) {
   const { common: { pageSize } } = await getSetting()
   limit = limit || pageSize
@@ -181,6 +182,7 @@ export async function getRelatedProductsByCategory({
   }
 
   const products = await Product.find(conditions)
+    .populate('vendorId', 'vendorProfile verification')
     .sort({ numSales: 'desc' })
     .skip(skipAmount)
     .limit(limit)
@@ -188,7 +190,7 @@ export async function getRelatedProductsByCategory({
   const productsCount = await Product.countDocuments(conditions)
 
   return {
-    data: JSON.parse(JSON.stringify(products)) as IProduct[],
+    data:       JSON.parse(JSON.stringify(products)) as IProduct[],
     totalPages: Math.ceil(productsCount / limit),
   }
 }
@@ -204,20 +206,20 @@ export async function getAllProducts({
   rating,
   sort,
 }: {
-  query: string
-  category: string
-  tag: string
-  limit?: number
-  page: number
-  price?: string
-  rating?: string
-  sort?: string
+  query:     string
+  category:  string
+  tag:       string
+  limit?:    number
+  page:      number
+  price?:    string
+  rating?:   string
+  sort?:     string
 }) {
   const { common: { pageSize } } = await getSetting()
   limit = limit || pageSize
   await connectToDatabase()
 
-  const queryFilter = query && query !== 'all'
+  const queryFilter    = query && query !== 'all'
     ? { name: { $regex: query, $options: 'i' } }
     : {}
   const categoryFilter = category && category !== 'all' ? { category } : {}
@@ -226,7 +228,12 @@ export async function getAllProducts({
     ? { avgRating: { $gte: Number(rating) } }
     : {}
   const priceFilter    = price && price !== 'all'
-    ? { price: { $gte: Number(price.split('-')[0]), $lte: Number(price.split('-')[1]) } }
+    ? {
+        price: {
+          $gte: Number(price.split('-')[0]),
+          $lte: Number(price.split('-')[1]),
+        },
+      }
     : {}
 
   const order: Record<string, 1 | -1> =
@@ -244,7 +251,7 @@ export async function getAllProducts({
     ...priceFilter,
     ...ratingFilter,
   })
-    .populate('vendorId', 'vendorProfile')
+    .populate('vendorId', 'vendorProfile verification')
     .sort(order)
     .skip(limit * (Number(page) - 1))
     .limit(limit)
@@ -259,11 +266,11 @@ export async function getAllProducts({
   })
 
   return {
-    products: JSON.parse(JSON.stringify(products)) as IProduct[],
-    totalPages: Math.ceil(countProducts / limit),
+    products:      JSON.parse(JSON.stringify(products)) as IProduct[],
+    totalPages:    Math.ceil(countProducts / limit),
     totalProducts: countProducts,
-    from: limit * (Number(page) - 1) + 1,
-    to: limit * (Number(page) - 1) + products.length,
+    from:          limit * (Number(page) - 1) + 1,
+    to:            limit * (Number(page) - 1) + products.length,
   }
 }
 
@@ -277,7 +284,8 @@ export async function getAllTags() {
     (tags[0]?.uniqueTags
       .sort((a: string, b: string) => a.localeCompare(b))
       .map((x: string) =>
-        x.split('-')
+        x
+          .split('-')
           .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(' ')
       ) as string[]) || []
