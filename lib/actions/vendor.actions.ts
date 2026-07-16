@@ -9,21 +9,21 @@ import { auth } from '@/auth'
 import { revalidatePath } from 'next/cache'
 import { formatError } from '../utils'
 
-// Helper — throws if not logged in, returns userId
 async function requireSession() {
   const session = await auth()
   if (!session?.user) throw new Error('Not logged in')
   return { session, userId: (session.user as any).id as string }
 }
 
-// Helper — throws if not an approved vendor
 async function requireApprovedVendor() {
   const { session, userId } = await requireSession()
   await connectToDatabase()
   const dbUser = await User.findById(userId)
     .select('role vendorProfile')
     .lean() as any
-  if (dbUser?.role !== 'vendor') {
+  const isVendor = dbUser?.role === 'vendor'
+  const isAdmin  = dbUser?.role === 'Admin' || dbUser?.role === 'admin'
+  if (!isVendor && !isAdmin) {
     throw new Error('Unauthorized — vendor role required')
   }
   if (!dbUser?.vendorProfile?.isApproved) {
@@ -31,8 +31,6 @@ async function requireApprovedVendor() {
   }
   return { session, userId, dbUser }
 }
-
-// --- Vendor Application & Dashboard ---
 
 export async function applyToBeVendor({
   storeName,
@@ -49,11 +47,16 @@ export async function applyToBeVendor({
 
     const slugTaken = await User.findOne({
       'vendorProfile.storeSlug': storeSlug,
+      _id: { $ne: userId },
     })
     if (slugTaken) throw new Error('That store URL is already taken')
 
-    await User.findByIdAndUpdate(userId, {
-      role: 'vendor',
+    const dbUser = await User.findById(userId).select('role vendorProfile').lean() as any
+    if (dbUser?.vendorProfile?.storeName) {
+      throw new Error('You already have a vendor account')
+    }
+
+    const updateData: any = {
       vendorProfile: {
         storeName,
         storeSlug,
@@ -61,8 +64,13 @@ export async function applyToBeVendor({
         isApproved: false,
         commission: 10,
       },
-    })
+    }
 
+    if (dbUser?.role === 'User') {
+      updateData.role = 'vendor'
+    }
+
+    await User.findByIdAndUpdate(userId, updateData)
     return { success: true, message: 'Application submitted' }
   } catch (error) {
     return { success: false, message: formatError(error) }
@@ -79,8 +87,8 @@ export async function getVendorStats() {
       Order.find({ 'vendorOrders.vendorId': userId }).lean(),
     ])
 
-    let totalRevenue = 0
-    let totalOrders  = 0
+    let totalRevenue  = 0
+    let totalOrders   = 0
     let pendingOrders = 0
 
     for (const order of orders) {
@@ -101,8 +109,6 @@ export async function getVendorStats() {
     return { success: false, message: formatError(error) }
   }
 }
-
-// --- Product Management ---
 
 export async function getVendorProducts({
   page  = 1,
@@ -158,12 +164,7 @@ export async function createVendorProduct(data: any) {
 export async function updateVendorProduct(id: string, data: any) {
   try {
     const { userId } = await requireApprovedVendor()
-
-    await Product.findOneAndUpdate(
-      { _id: id, vendorId: userId },
-      data,
-      { new: true }
-    )
+    await Product.findOneAndUpdate({ _id: id, vendorId: userId }, data, { new: true })
     revalidatePath('/vendor/products')
     return { success: true, message: 'Product updated' }
   } catch (error) {
@@ -174,19 +175,13 @@ export async function updateVendorProduct(id: string, data: any) {
 export async function deleteVendorProduct(id: string) {
   try {
     const { userId } = await requireApprovedVendor()
-
-    await Product.findOneAndUpdate(
-      { _id: id, vendorId: userId },
-      { isPublished: false }
-    )
+    await Product.findOneAndUpdate({ _id: id, vendorId: userId }, { isPublished: false })
     revalidatePath('/vendor/products')
     return { success: true, message: 'Product removed' }
   } catch (error) {
     return { success: false, message: formatError(error) }
   }
 }
-
-// --- Order Management ---
 
 export async function getVendorOrders({
   page  = 1,
@@ -206,9 +201,7 @@ export async function getVendorOrders({
       .limit(limit)
       .lean()
 
-    const total = await Order.countDocuments({
-      'vendorOrders.vendorId': userId,
-    })
+    const total = await Order.countDocuments({ 'vendorOrders.vendorId': userId })
 
     return {
       success: true,
@@ -223,11 +216,7 @@ export async function getVendorOrders({
   }
 }
 
-export async function updateVendorOrderStatus(
-  orderId:  string,
-  vendorId: string,
-  status:   string
-) {
+export async function updateVendorOrderStatus(orderId: string, vendorId: string, status: string) {
   try {
     await connectToDatabase()
     await Order.updateOne(
@@ -241,37 +230,24 @@ export async function updateVendorOrderStatus(
   }
 }
 
-// --- Public / Storefront Helpers ---
-
-export async function getVendorStore(
-  slug:      string,
-  query?:    string,
-  category?: string
-) {
+export async function getVendorStore(slug: string, query?: string, category?: string) {
   try {
     await connectToDatabase()
 
     const vendor = await User.findOne({
-      'vendorProfile.storeSlug':   slug,
-      'vendorProfile.isApproved':  true,
+      'vendorProfile.storeSlug':  slug,
+      'vendorProfile.isApproved': true,
     }).lean()
 
     if (!vendor) throw new Error('Store not found')
 
-    const filter: any = {
-      vendorId:    (vendor as any)._id,
-      isPublished: true,
-    }
+    const filter: any = { vendorId: (vendor as any)._id, isPublished: true }
     if (query)    filter.name     = { $regex: query, $options: 'i' }
     if (category) filter.category = category
 
-    const products = await Product.find(filter)
-      .sort({ createdAt: -1 })
-      .lean()
-
+    const products      = await Product.find(filter).sort({ createdAt: -1 }).lean()
     const allCategories = await Product.find({
-      vendorId:    (vendor as any)._id,
-      isPublished: true,
+      vendorId: (vendor as any)._id, isPublished: true,
     }).distinct('category')
 
     return {
@@ -291,10 +267,8 @@ export async function getVendorInfoForProducts(productIds: string[]) {
   try {
     await connectToDatabase()
 
-    const products = await Product.find({
-      _id: { $in: productIds },
-    })
-      .populate('vendorId', 'vendorProfile')
+    const products = await Product.find({ _id: { $in: productIds } })
+      .populate('vendorId', 'vendorProfile verification')
       .select('_id vendorId')
       .lean() as any[]
 
@@ -303,10 +277,10 @@ export async function getVendorInfoForProducts(productIds: string[]) {
     for (const product of products) {
       if (product.vendorId?.vendorProfile) {
         map[product._id.toString()] = {
-  storeName: product.vendorId.vendorProfile.storeName,
-  storeSlug: product.vendorId.vendorProfile.storeSlug,
-  isVerified: product.vendorId.verification?.isVerified || false,
-}
+          storeName:  product.vendorId.vendorProfile.storeName,
+          storeSlug:  product.vendorId.vendorProfile.storeSlug,
+          isVerified: product.vendorId.verification?.isVerified || false,
+        }
       }
     }
 

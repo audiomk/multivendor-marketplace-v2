@@ -1,5 +1,4 @@
 import { auth } from '@/auth'
-
 import { Button, buttonVariants } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -16,8 +15,14 @@ import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 
 export default async function UserButton() {
-  const t = await getTranslations()
+  const t       = await getTranslations()
   const session = await auth()
+  const role    = (session?.user as any)?.role
+  const hasVendorProfile = (session?.user as any)?.vendorProfile?.storeName
+
+  const isAdmin  = role === 'Admin' || role === 'admin'
+  const isVendor = role === 'vendor' || (isAdmin && hasVendorProfile)
+
   return (
     <div className='flex gap-2 items-center'>
       <DropdownMenu>
@@ -43,6 +48,11 @@ export default async function UserButton() {
                 <p className='text-xs leading-none text-muted-foreground'>
                   {session.user.email}
                 </p>
+                {isVendor && (
+                  <p className='text-xs text-[#006D6B] font-medium'>
+                    Vendor Account
+                  </p>
+                )}
               </div>
             </DropdownMenuLabel>
             <DropdownMenuGroup>
@@ -52,15 +62,25 @@ export default async function UserButton() {
               <Link className='w-full' href='/account/orders'>
                 <DropdownMenuItem>{t('Header.Your orders')}</DropdownMenuItem>
               </Link>
-
-              {session.user.role === 'Admin' && (
+              {isVendor && (
+                <Link className='w-full' href='/vendor/overview'>
+                  <DropdownMenuItem>Vendor Dashboard</DropdownMenuItem>
+                </Link>
+              )}
+              {isAdmin && (
                 <Link className='w-full' href='/admin/overview'>
                   <DropdownMenuItem>{t('Header.Admin')}</DropdownMenuItem>
                 </Link>
               )}
             </DropdownMenuGroup>
             <DropdownMenuItem className='p-0 mb-1'>
-              <form action={SignOut} className='w-full'>
+              <form
+                action={async () => {
+                  'use server'
+                  await SignOut()
+                }}
+                className='w-full'
+              >
                 <Button
                   className='w-full py-4 px-2 h-4 justify-start'
                   variant='ghost'

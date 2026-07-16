@@ -13,11 +13,20 @@ export default async function VendorLayout({
   children: React.ReactNode
 }) {
   const session = await auth()
-  const user = session?.user as any
+  const user    = session?.user as any
 
   if (!session) redirect('/sign-in')
-  if (user?.role === 'User') redirect('/become-vendor')
-  if (user?.role === 'vendor' && !user?.vendorProfile?.isApproved) {
+
+  // Block regular users who haven't applied
+  if (user?.role === 'User' && !user?.vendorProfile) {
+    redirect('/become-vendor')
+  }
+
+  // Block unapproved vendors (not admins)
+  if (
+    user?.role === 'vendor' &&
+    !user?.vendorProfile?.isApproved
+  ) {
     redirect('/vendor/pending')
   }
 
@@ -27,7 +36,7 @@ export default async function VendorLayout({
     <div className='flex flex-col'>
       <div className='bg-black text-white'>
         <div className='flex h-16 items-center px-2'>
-          <NextLink href='/en-US'>
+          <NextLink href='/'>
             <Image
               src='/icons/logo.svg'
               width={48}

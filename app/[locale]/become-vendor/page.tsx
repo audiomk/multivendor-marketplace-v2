@@ -11,9 +11,7 @@ import {
 
 export default function BecomeVendorPage() {
   const { update } = useSession()
-  const [form, setForm] = useState({
-    storeName: '', storeSlug: '', bio: ''
-  })
+  const [form, setForm] = useState({ storeName: '', storeSlug: '', bio: '' })
   const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState('')
 
@@ -21,7 +19,6 @@ export default function BecomeVendorPage() {
     setLoading(true)
     setError('')
     const result = await applyToBeVendor(form)
-    console.log('result:', result)
     if (!result.success) {
       setError(result.message || 'Something went wrong')
       setLoading(false)

@@ -79,17 +79,44 @@ export default function VendorVerificationForm({
     setCameraOpen(false)
   }
 
-  const capturePhoto = () => {
-    if (!videoRef.current || !canvasRef.current) return
-    const canvas  = canvasRef.current
-    const video   = videoRef.current
-    canvas.width  = video.videoWidth
-    canvas.height = video.videoHeight
-    canvas.getContext('2d')?.drawImage(video, 0, 0)
-    const dataUrl = canvas.toDataURL('image/jpeg')
-    setSelfiePreview(dataUrl)
-    stopCamera()
+  const capturePhoto = async () => {
+  if (!videoRef.current || !canvasRef.current) return
+  const canvas  = canvasRef.current
+  const video   = videoRef.current
+  canvas.width  = video.videoWidth
+  canvas.height = video.videoHeight
+  canvas.getContext('2d')?.drawImage(video, 0, 0)
+  const dataUrl = canvas.toDataURL('image/jpeg')
+  setSelfiePreview(dataUrl)
+  stopCamera()
+
+  // Convert dataURL to File and upload to uploadthing
+  try {
+    const res      = await fetch(dataUrl)
+    const blob     = await res.blob()
+    const file     = new File([blob], 'selfie.jpg', { type: 'image/jpeg' })
+    const formData = new FormData()
+    formData.append('file', file)
+
+    // Use uploadthing's fetch endpoint
+    const uploadRes = await fetch('/api/uploadthing', {
+      method: 'POST',
+      body:   formData,
+    })
+
+    if (!uploadRes.ok) throw new Error('Upload failed')
+    const data = await uploadRes.json()
+    if (data?.[0]?.url) {
+      setSelfieUrl(data[0].url)
+      toast({ description: 'Photo captured and ready to submit!' })
+    }
+  } catch {
+    toast({
+      description: 'Photo captured. Please use the Upload button to submit it.',
+      variant: 'default'
+    })
   }
+}
 
   // --- Submit handlers ---
   const handleIdSubmit = async () => {
