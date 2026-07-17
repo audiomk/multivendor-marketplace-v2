@@ -70,7 +70,7 @@ export default async function VendorProductsPage() {
                     <Button asChild size='sm' variant='outline'>
                       <Link href={`/vendor/products/${p._id}/edit`}>Edit</Link>
                     </Button>
-                    <DeleteVendorProduct id={p._id} />
+                    <DeleteVendorProduct id={p._id} isPublished={p.isPublished} />
                   </TableCell>
                 </TableRow>
               ))}

@@ -55,12 +55,11 @@ const isVerified  = vendorData?.verification?.isVerified || false
 
       {/* Vendor store link */}
       {vendor?.storeSlug && (
-  <Link
-    href={`/store/${vendor.storeSlug}`}
-    className='flex items-center justify-center gap-1
-               text-xs text-blue-600 hover:underline'
-    onClick={e => e.stopPropagation()}
-  >
+    <Link
+      href={`/store/${vendor.storeSlug}`}
+      className='flex items-center justify-center gap-1
+             text-xs text-blue-600 hover:underline'
+    >
     <Store size={10} />
     {vendor.storeName}
     {isVerified && (

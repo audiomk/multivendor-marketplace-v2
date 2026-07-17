@@ -289,3 +289,14 @@ export async function getVendorInfoForProducts(productIds: string[]) {
     return { success: false, data: {} }
   }
 }
+
+export async function permanentlyDeleteVendorProduct(id: string) {
+  try {
+    const { userId } = await requireApprovedVendor()
+    await Product.findOneAndDelete({ _id: id, vendorId: userId })
+    revalidatePath('/vendor/products')
+    return { success: true, message: 'Product permanently deleted' }
+  } catch (error) {
+    return { success: false, message: formatError(error) }
+  }
+}

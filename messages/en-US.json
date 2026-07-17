@@ -50,6 +50,7 @@
     "Best Deals on Wrist Watches": "Best Deals on Wrist Watches"
   },
   "Product": {
+    "Only X left in stock - order soon": "Only {count} left in stock - order soon",
     "Added to Cart": "Added to Cart",
     "Go to Cart": "Go to Cart",
     "Deleted User": "Deleted User",

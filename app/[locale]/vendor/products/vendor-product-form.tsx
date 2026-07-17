@@ -218,23 +218,62 @@ export default function VendorProductForm({
             <FormItem className='w-full'>
               <FormLabel>Images</FormLabel>
               <Card>
-                <CardContent className='space-y-2 mt-2 min-h-48'>
-                  <div className='flex justify-start items-center space-x-2 flex-wrap gap-2'>
-                    {images.map((image: string) => (
-                      <Image
-                        key={image}
-                        src={image}
-                        alt='product image'
-                        className='w-20 h-20 object-cover rounded-sm'
-                        width={100}
-                        height={100}
-                      />
-                    ))}
+                <CardContent className='space-y-4 mt-2 min-h-48'>
+                  {/* Image grid with delete buttons */}
+                  {images.length > 0 && (
+                    <div className='flex flex-wrap gap-3'>
+                      {images.map((image: string, index: number) => (
+                        <div key={image} className='relative group'>
+                          <Image
+                            src={image}
+                            alt={`product image ${index + 1}`}
+                            className='w-24 h-24 object-cover rounded-lg border'
+                            width={96}
+                            height={96}
+                          />
+                          {/* Delete button */}
+                          <button
+                            type='button'
+                            onClick={() => {
+                              const updated = images.filter((_: string, i: number) => i !== index)
+                              form.setValue('images', updated)
+                            }}
+                            className='absolute -top-2 -right-2 bg-red-500 text-white
+                                       rounded-full w-5 h-5 text-xs flex items-center
+                                       justify-center opacity-0 group-hover:opacity-100
+                                       transition-opacity shadow-md'
+                            title='Remove image'
+                          >
+                            ×
+                          </button>
+                          {/* Primary badge */}
+                          {index === 0 && (
+                            <span className='absolute bottom-1 left-1 bg-black/60
+                                             text-white text-xs px-1 rounded'>
+                              Main
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Upload area */}
+                  <div className='space-y-2'>
+                    <p className='text-xs text-muted-foreground'>
+                      Upload multiple images at once. First image is the main product photo.
+                      {images.length > 0 && ` (${images.length} uploaded)`}
+                    </p>
                     <FormControl>
                       <UploadButton
                         endpoint='imageUploader'
                         onClientUploadComplete={(res: { url: string }[]) => {
-                          form.setValue('images', [...images, res[0].url])
+                          // Add ALL uploaded images at once
+                          const newUrls = res.map(r => r.url)
+                          form.setValue('images', [...images, ...newUrls])
+                          toast({
+                            description: `${res.length} image${res.length > 1 ? 's' : ''} uploaded`,
+                          })
                         }}
                         onUploadError={(error: Error) => {
                           toast({
@@ -245,6 +284,13 @@ export default function VendorProductForm({
                       />
                     </FormControl>
                   </div>
+
+                  {/* Reorder hint */}
+                  {images.length > 1 && (
+                    <p className='text-xs text-muted-foreground'>
+                      Tip: Delete and re-upload to reorder. The first image is shown as the main product photo.
+                    </p>
+                  )}
                 </CardContent>
               </Card>
               <FormMessage />
