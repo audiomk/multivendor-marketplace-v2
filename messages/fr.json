@@ -58,7 +58,12 @@
     "Grow Revenue": "Augmentez vos revenus",
     "Fresh stock daily": "Stock frais quotidien",
     "Free to get started": "Gratuit pour commencer",
-    "Up to 70% off": "Jusqu'à 70% de réduction"
+    "Up to 70% off": "Jusqu'à 70% de réduction",
+    "Related to items that you've viewed": "Lié aux articles que vous avez consultés",
+    "Your browsing history": "Votre historique de navigation",
+    "Most Popular Shoes For Sale": "Chaussures les plus populaires en vente",
+    "Shop Now": "Acheter maintenant",
+    "Today's Deals": "Offres du jour"
   },
   "Product": {
     "Only X left in stock - order soon": "Plus que {count} articles en stock - commandez vite",

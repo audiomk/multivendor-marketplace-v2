@@ -58,7 +58,12 @@
     "Grow Revenue": "زد دخلك",
     "Fresh stock daily": "مخزون متجدد يومياً",
     "Free to get started": "البدء مجاني",
-    "Up to 70% off": "خصم يصل إلى 70٪"
+    "Up to 70% off": "خصم يصل إلى 70٪",
+    "Related to items that you've viewed": "ذات صلة بالمنتجات التي شاهدتها",
+    "Your browsing history": "سجل التصفح الخاص بك",
+    "Most Popular Shoes For Sale": "الأحذية الأكثر شعبية المعروضة للبيع",
+    "Shop Now": "تسوق الآن",
+    "Today's Deals": "عروض اليوم"
   },
   "Product": {
     "Only X left in stock - order soon": "تبقى {count} فقط في المخزون - اطلب قريباً",
