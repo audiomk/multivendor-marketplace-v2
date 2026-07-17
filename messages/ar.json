@@ -63,7 +63,9 @@
     "Your browsing history": "سجل التصفح الخاص بك",
     "Most Popular Shoes For Sale": "الأحذية الأكثر شعبية المعروضة للبيع",
     "Shop Now": "تسوق الآن",
-    "Today's Deals": "عروض اليوم"
+    "Today's Deals": "عروض اليوم",
+    "Best Sellers in T-Shirts": "الأكثر مبيعاً في التيشيرتات",
+    "Best Deals on Wrist Watches": "أفضل العروض على ساعات اليد"
   },
   "Product": {
     "Only X left in stock - order soon": "تبقى {count} فقط في المخزون - اطلب قريباً",
