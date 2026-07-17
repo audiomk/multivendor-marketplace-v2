@@ -74,13 +74,7 @@ export default async function UserButton() {
               )}
             </DropdownMenuGroup>
             <DropdownMenuItem className='p-0 mb-1'>
-              <form
-                action={async () => {
-                  'use server'
-                  await SignOut()
-                }}
-                className='w-full'
-              >
+              <form action={SignOut} className='w-full'>
                 <Button
                   className='w-full py-4 px-2 h-4 justify-start'
                   variant='ghost'

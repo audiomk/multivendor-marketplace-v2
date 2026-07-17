@@ -58,7 +58,7 @@ export async function updateUser(user: z.infer<typeof UserUpdateSchema>) {
     if (!dbUser) throw new Error('User not found')
     dbUser.name = user.name
     dbUser.email = user.email
-    dbUser.role = user.role
+    dbUser.role = user.role as IUser['role']
     const updatedUser = await dbUser.save()
     revalidatePath('/admin/users')
     return {
@@ -95,8 +95,7 @@ export const SignInWithGoogle = async () => {
   await signIn('google')
 }
 export const SignOut = async () => {
-  const redirectTo = await signOut({ redirect: false })
-  redirect(redirectTo.redirect)
+  await signOut({ redirectTo: '/' })
 }
 
 // GET
