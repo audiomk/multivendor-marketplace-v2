@@ -118,13 +118,13 @@ export default async function HomePage() {
           >
             <div className='z-10'>
               <p className='text-[#FABB02] text-xs font-bold uppercase tracking-wider'>
-                Limited Time
+                {t('Limited Time')}
               </p>
               <p className='text-white text-xl font-extrabold mt-1'>
-                Today&apos;s Deals
+                {t("Today's Deals")}
               </p>
               <p className='text-gray-300 text-xs mt-1'>
-                Up to 70% off
+                {t('Up to 70% off')}
               </p>
             </div>
             <span className='absolute right-4 text-5xl
@@ -139,13 +139,13 @@ export default async function HomePage() {
           >
             <div className='z-10'>
               <p className='text-[#006D6B] text-xs font-bold uppercase tracking-wider'>
-                Just In
+                {t('Just In')}
               </p>
               <p className='text-gray-900 text-xl font-extrabold mt-1'>
-                New Arrivals
+                {t('New Arrivals')}
               </p>
               <p className='text-gray-700 text-xs mt-1'>
-                Fresh stock daily
+                {t('Fresh stock daily')}
               </p>
             </div>
             <span className='absolute right-4 text-5xl
@@ -159,13 +159,13 @@ export default async function HomePage() {
           >
             <div className='z-10'>
               <p className='text-[#FABB02] text-xs font-bold uppercase tracking-wider'>
-                Grow Revenue
+                {t('Grow Revenue')}
               </p>
               <p className='text-white text-xl font-extrabold mt-1'>
-                Sell on Indaba
+                {t('Start Selling Today')}
               </p>
               <p className='text-gray-400 text-xs mt-1'>
-                Free to get started
+                {t('Free to get started')}
               </p>
             </div>
             <span className='absolute right-4 text-5xl
@@ -192,7 +192,7 @@ export default async function HomePage() {
               className='text-[#006D6B] text-sm font-semibold
                          hover:underline flex items-center gap-1'
             >
-              See all deals →
+              {t('See all deals')} →
             </Link>
           </div>
           <div className='p-4'>
@@ -204,8 +204,8 @@ export default async function HomePage() {
         <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
           {[
             {
-              title: 'Categories',
-              link: { text: 'Browse all', href: '/search' },
+              title: t('Categories'),
+              link: { text: t('Browse all'), href: '/search' },
               items: categories.slice(0, 4).map((cat) => ({
                 name: cat,
                 image: getCategoryImage(toSlug(cat)),
@@ -213,18 +213,18 @@ export default async function HomePage() {
               })),
             },
             {
-              title: 'New Arrivals',
-              link: { text: 'View all', href: '/search?tag=new-arrival' },
+              title: t('New Arrivals'),
+              link: { text: t('View all'), href: '/search?tag=new-arrival' },
               items: newArrivalCards,
             },
             {
-              title: 'Best Sellers',
-              link: { text: 'View all', href: '/search?tag=best-seller' },
+              title: t('Best Sellers'),
+              link: { text: t('View all'), href: '/search?tag=best-seller' },
               items: bestSellerCards,
             },
             {
-              title: 'Featured',
-              link: { text: 'Shop now', href: '/search?tag=featured' },
+              title: t('Featured'),
+              link: { text: t('Shop now'), href: '/search?tag=featured' },
               items: featuredCards,
             },
           ].map((card) => (
@@ -277,7 +277,7 @@ export default async function HomePage() {
             <div className='flex items-center gap-3'>
               <div className='w-1 h-6 rounded-full bg-[#FABB02]' />
               <h2 className='text-xl font-bold text-gray-900'>
-                New Arrivals
+                {t('New Arrivals')}
               </h2>
             </div>
             <Link
@@ -285,7 +285,7 @@ export default async function HomePage() {
               className='text-[#006D6B] text-sm font-semibold
                          hover:underline flex items-center gap-1'
             >
-              View all →
+              {t('View all')} →
             </Link>
           </div>
           <div className='p-4'>
@@ -300,7 +300,7 @@ export default async function HomePage() {
             <div className='flex items-center gap-3'>
               <div className='w-1 h-6 rounded-full bg-[#006D6B]' />
               <h2 className='text-xl font-bold text-gray-900'>
-                Best Selling Products
+                {t('Best Selling Products')}
               </h2>
             </div>
             <Link
@@ -322,23 +322,21 @@ export default async function HomePage() {
           style={{ background: 'linear-gradient(135deg, #006D6B 0%, #004a48 100%)' }}
         >
           <div className='relative z-10'>
-            <p className='text-[#FABB02] font-bold text-sm uppercase
-                          tracking-widest mb-2'>
-              Join Indaba Cart
+            <p className='text-[#FABB02] font-bold text-sm uppercase tracking-widest mb-2'>
+              {t('Join Indaba Cart')}
             </p>
             <h2 className='text-white text-2xl md:text-3xl font-extrabold mb-2'>
-              Start Selling Today
+              {t('Start Selling Today')}
             </h2>
             <p className='text-gray-300 text-sm mb-6 max-w-md mx-auto'>
-              Reach thousands of customers across Zimbabwe and beyond.
-              Zero setup cost.
+              {t('Start Selling Tagline')}
             </p>
             <Link
               href='/become-vendor'
               className='inline-block bg-[#FABB02] text-black font-extrabold
                          px-8 py-3 rounded-lg hover:bg-[#e6a800] transition'
             >
-              Open Your Store →
+              {t('Open Your Store')} →
             </Link>
           </div>
           <div className='absolute -bottom-8 -right-8 w-48 h-48

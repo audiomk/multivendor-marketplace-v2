@@ -1,27 +1,27 @@
 {
   "Header": {
     "Hello": "Bonjour",
-    "sign in": "se connecter",
+    "sign in": "Se connecter",
     "All": "Tout",
     "Gold": "Or",
     "Green": "Vert",
     "Red": "Rouge",
-    "Shop By Department": "Magasiner par département",
+    "Shop By Department": "Acheter par département",
     "Account & Orders": "Compte et commandes",
     "Sign up": "S'inscrire",
     "Sign in": "Se connecter",
     "Sign out": "Se déconnecter",
-    "Admin": "Admin",
+    "Admin": "Administrateur",
     "Your account": "Votre compte",
     "Your orders": "Vos commandes",
     "New Customer": "Nouveau client",
     "Help & Settings": "Aide et paramètres",
-    "Search Site": "Rechercher {name}",
+    "Search Site": "Rechercher sur {name}",
     "Cart": "Panier",
     "Dark": "Sombre",
     "Light": "Clair",
     "Color": "Couleur",
-    "Today's Deal": "Offre du jour",
+    "Today's Deal": "Offres du jour",
     "New Arrivals": "Nouveautés",
     "Featured Products": "Produits vedettes",
     "Best Sellers": "Meilleures ventes",
@@ -34,22 +34,34 @@
     "Go to cart": "Aller au panier"
   },
   "Home": {
-    "Categories to explore": "Catégories à explorer",
-    "See More": "Voir plus",
-    "Explore New Arrivals": "Explorer les nouveautés",
-    "Discover Best Sellers": "Découvrir les meilleures ventes",
-    "Featured Products": "Produits vedettes",
-    "View All": "Tout afficher",
-    "Shop Now": "Acheter maintenant",
-    "Today's Deals": "Offres du jour",
+    "New Arrivals": "Nouveaux arrivages",
     "Best Selling Products": "Produits les plus vendus",
-    "Related to items that you've viewed": "Lié aux articles que vous avez consultés",
-    "Your browsing history": "Votre historique de navigation",
-    "Most Popular Shoes For Sale": "Chaussures les plus populaires à vendre",
-    "Best Sellers in T-Shirts": "Meilleures ventes de t-shirts",
-    "Best Deals on Wrist Watches": "Meilleures offres sur les montres-bracelets"
+    "Categories": "Catégories",
+    "Best Sellers": "Meilleures ventes",
+    "Featured": "À la une",
+    "Browse all": "Tout parcourir",
+    "View all": "Voir tout",
+    "Shop now": "Acheter maintenant",
+    "See all deals": "Voir toutes les offres",
+    "HOT": "CHAUD",
+    "Join Indaba Cart": "Rejoignez Indaba Cart",
+    "Start Selling Today": "Commencez à vendre aujourd'hui",
+    "Start Selling Tagline": "Atteignez des milliers de clients au Zimbabwe et au-delà. Aucun frais de configuration.",
+    "Open Your Store": "Ouvrez votre boutique",
+    "Picked For You": "Sélectionné pour vous",
+    "Trending in Your Department": "Tendances dans votre département",
+    "Shoppers Like You Also Bought": "Les acheteurs comme vous ont aussi acheté",
+    "Featured Promotions": "Promotions vedettes",
+    "Sponsored": "Sponsorisé",
+    "Limited Time": "Durée limitée",
+    "Just In": "Vient d'arriver",
+    "Grow Revenue": "Augmentez vos revenus",
+    "Fresh stock daily": "Stock frais quotidien",
+    "Free to get started": "Gratuit pour commencer",
+    "Up to 70% off": "Jusqu'à 70% de réduction"
   },
   "Product": {
+    "Only X left in stock - order soon": "Plus que {count} articles en stock - commandez vite",
     "Added to Cart": "Ajouté au panier",
     "Go to Cart": "Aller au panier",
     "Deleted User": "Utilisateur supprimé",
@@ -153,47 +165,52 @@
     "Page": "Page"
   },
   "Footer": {
-  "Select a currency": "Sélectionner une devise",
-  "Select a language": "Sélectionner une langue",
-  "Back to top": "Retour en haut",
-  "Shop": {
-    "Title": "BOUTIQUE",
-    "Todays Deals": "Offres du jour",
-    "New Arrivals": "Nouveautés",
-    "Best Sellers": "Meilleures ventes",
-    "All Products": "Tous les produits"
+    "Select a currency": "Sélectionner une devise",
+    "Select a language": "Sélectionner une langue",
+    "Back to top": "Retour en haut",
+    "Shop": {
+      "Title": "BOUTIQUE",
+      "Todays Deals": "Offres du jour",
+      "New Arrivals": "Nouveautés",
+      "Best Sellers": "Meilleures ventes",
+      "All Products": "Tous les produits"
+    },
+    "Account": {
+      "Title": "COMPTE",
+      "My Account": "Mon compte",
+      "My Orders": "Mes commandes",
+      "Sign In": "Se connecter",
+      "Register": "S'inscrire"
+    },
+    "Sell": {
+      "Title": "VENDRE",
+      "Become a Vendor": "Devenir vendeur",
+      "Vendor Dashboard": "Tableau de bord vendeur",
+      "Vendor Products": "Produits du vendeur",
+      "Vendor Orders": "Commandes vendeur"
+    },
+    "Help": {
+      "Title": "AIDE",
+      "Help Centre": "Centre d'aide",
+      "Returns Policy": "Politique de retour",
+      "Shipping Info": "Informations de livraison",
+      "Privacy Policy": "Politique de confidentialité"
+    },
+    "Company": {
+      "Title": "ENTREPRISE",
+      "About Us": "À propos de nous",
+      "Careers": "Carrières",
+      "Blog": "Blog",
+      "Advertise": "Publicité"
+    }
   },
-  "Account": {
-    "Title": "COMPTE",
-    "My Account": "Mon compte",
-    "My Orders": "Mes commandes",
-    "Sign In": "Se connecter",
-    "Register": "S'inscrire"
-  },
-  "Sell": {
-    "Title": "VENDRE",
-    "Become a Vendor": "Devenir vendeur",
-    "Vendor Dashboard": "Tableau de bord vendeur",
-    "Vendor Products": "Produits du vendeur",
-    "Vendor Orders": "Commandes vendeur"
-  },
-  "Help": {
-    "Title": "AIDE",
-    "Help Centre": "Centre d'aide",
-    "Returns Policy": "Politique de retour",
-    "Shipping Info": "Informations de livraison",
-    "Privacy Policy": "Politique de confidentialité"
-  },
-  "Company": {
-    "Title": "ENTREPRISE",
-    "About Us": "À propos",
-    "Careers": "Carrières",
-    "Blog": "Blog",
-    "Advertise": "Publicité"
-  }
-},
   "Loading": {
     "Loading": "Chargement..."
+  },
+  "Error": {
+    "Error": "Erreur",
+    "Try again": "Réessayer",
+    "Back To Home": "Retour à l'accueil"
   },
   "Admin": {
     "Deleted User": "Utilisateur supprimé",
@@ -213,7 +230,7 @@
     "View customers": "Voir les clients",
     "View products": "Voir les produits",
     "Sales Overview": "Aperçu des ventes",
-    "How much you’re earning": "Combien gagnez-vous",
+    "How much you’re earning": "Combien vous gagnez",
     "Estimated": "Estimé",
     "Last 6 months": "6 derniers mois",
     "Product Performance": "Performance des produits",
@@ -224,6 +241,7 @@
     "Total": "Total",
     "Status": "Statut",
     "Actions": "Actions",
-    "Details": "Détails"
+    "Details": "Détails",
+    "Vendors": "Vendeurs"
   }
 }

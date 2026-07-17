@@ -3,6 +3,12 @@ import { useEffect, useState } from 'react'
 import useBrowsingHistory from '@/hooks/use-browsing-history'
 import ProductSlider from '@/components/shared/product/product-slider'
 import { Separator } from '@/components/ui/separator'
+import { useTranslations } from 'next-intl'
+// inside component:
+const t = useTranslations('Home')
+// then use:
+{t('Featured Promotions')}
+{t('Sponsored')}
 
 function PersonalisedSlider({
   title,
@@ -60,17 +66,17 @@ export default function PersonalisedSections() {
     <div className='space-y-6'>
       <Separator />
       <PersonalisedSlider
-        title='Picked For You'
+        title={t('Picked For You')}
         type='related'
         accentColor='#006D6B'
       />
       <PersonalisedSlider
-        title='Trending in Your Department'
+        title={t('Trending in Your Department')}
         type='trending'
         accentColor='#FABB02'
       />
       <PersonalisedSlider
-        title='Shoppers Like You Also Bought'
+        title={t('Shoppers Like You Also Bought')}
         type='also-bought'
         hideDetails
         accentColor='#006D6B'

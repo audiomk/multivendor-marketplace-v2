@@ -34,20 +34,31 @@
     "Go to cart": "Go to cart"
   },
   "Home": {
-    "Categories to explore": "Categories to explore",
-    "See More": "See More",
-    "Explore New Arrivals": "Explore New Arrivals",
-    "Discover Best Sellers": "Discover Best Sellers",
-    "Featured Products": "Featured Products",
-    "View All": "View All",
-    "Shop Now": "Shop Now",
-    "Today's Deals": "Today's Deals",
+    "New Arrivals": "New Arrivals",
     "Best Selling Products": "Best Selling Products",
-    "Related to items that you've viewed": "Related to items that you've viewed",
-    "Your browsing history": "Your browsing history",
-    "Most Popular Shoes For Sale": "Most Popular Shoes For Sale",
-    "Best Sellers in T-Shirts": "Best Sellers in T-Shirts",
-    "Best Deals on Wrist Watches": "Best Deals on Wrist Watches"
+    "Categories": "Categories",
+    "Best Sellers": "Best Sellers",
+    "Featured": "Featured",
+    "Browse all": "Browse all",
+    "View all": "View all",
+    "Shop now": "Shop now",
+    "See all deals": "See all deals",
+    "HOT": "HOT",
+    "Join Indaba Cart": "Join Indaba Cart",
+    "Start Selling Today": "Start Selling Today",
+    "Start Selling Tagline": "Reach thousands of customers across Zimbabwe and beyond. Zero setup cost.",
+    "Open Your Store": "Open Your Store",
+    "Picked For You": "Picked For You",
+    "Trending in Your Department": "Trending in Your Department",
+    "Shoppers Like You Also Bought": "Shoppers Like You Also Bought",
+    "Featured Promotions": "Featured Promotions",
+    "Sponsored": "Sponsored",
+    "Limited Time": "Limited Time",
+    "Just In": "Just In",
+    "Grow Revenue": "Grow Revenue",
+    "Fresh stock daily": "Fresh stock daily",
+    "Free to get started": "Free to get started",
+    "Up to 70% off": "Up to 70% off"
   },
   "Product": {
     "Only X left in stock - order soon": "Only {count} left in stock - order soon",
@@ -154,45 +165,45 @@
     "Page": "Page"
   },
   "Footer": {
-  "Select a currency": "Select a currency",
-  "Select a language": "Select a language",
-  "Back to top": "Back to top",
-  "Shop": {
-    "Title": "SHOP",
-    "Todays Deals": "Today's Deals",
-    "New Arrivals": "New Arrivals",
-    "Best Sellers": "Best Sellers",
-    "All Products": "All Products"
+    "Select a currency": "Select a currency",
+    "Select a language": "Select a language",
+    "Back to top": "Back to top",
+    "Shop": {
+      "Title": "SHOP",
+      "Todays Deals": "Today's Deals",
+      "New Arrivals": "New Arrivals",
+      "Best Sellers": "Best Sellers",
+      "All Products": "All Products"
+    },
+    "Account": {
+      "Title": "ACCOUNT",
+      "My Account": "My Account",
+      "My Orders": "My Orders",
+      "Sign In": "Sign In",
+      "Register": "Register"
+    },
+    "Sell": {
+      "Title": "SELL",
+      "Become a Vendor": "Become a Vendor",
+      "Vendor Dashboard": "Vendor Dashboard",
+      "Vendor Products": "Vendor Products",
+      "Vendor Orders": "Vendor Orders"
+    },
+    "Help": {
+      "Title": "HELP",
+      "Help Centre": "Help Centre",
+      "Returns Policy": "Returns Policy",
+      "Shipping Info": "Shipping Info",
+      "Privacy Policy": "Privacy Policy"
+    },
+    "Company": {
+      "Title": "COMPANY",
+      "About Us": "About Us",
+      "Careers": "Careers",
+      "Blog": "Blog",
+      "Advertise": "Advertise"
+    }
   },
-  "Account": {
-    "Title": "ACCOUNT",
-    "My Account": "My Account",
-    "My Orders": "My Orders",
-    "Sign In": "Sign In",
-    "Register": "Register"
-  },
-  "Sell": {
-    "Title": "SELL",
-    "Become a Vendor": "Become a Vendor",
-    "Vendor Dashboard": "Vendor Dashboard",
-    "Vendor Products": "Vendor Products",
-    "Vendor Orders": "Vendor Orders"
-  },
-  "Help": {
-    "Title": "HELP",
-    "Help Centre": "Help Centre",
-    "Returns Policy": "Returns Policy",
-    "Shipping Info": "Shipping Info",
-    "Privacy Policy": "Privacy Policy"
-  },
-  "Company": {
-    "Title": "COMPANY",
-    "About Us": "About Us",
-    "Careers": "Careers",
-    "Blog": "Blog",
-    "Advertise": "Advertise"
-  }
-},
   "Loading": {
     "Loading": "Loading..."
   },

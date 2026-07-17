@@ -1,3 +1,11 @@
+'use client'
+import { useTranslations } from 'next-intl'
+// inside component:
+const t = useTranslations('Home')
+// then use:
+{t('Featured Promotions')}
+{t('Sponsored')}
+
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -46,8 +54,9 @@ export default function AdSlots() {
     <div className='space-y-3'>
       <div className='flex items-center justify-between'>
         <h2 className='text-lg font-bold text-gray-900'>Featured Promotions</h2>
-        <span className='text-xs text-gray-400 border border-gray-200
-                         px-2 py-0.5 rounded'>Sponsored</span>
+        <span className='text-xs text-gray-400 border border-gray-200 px-2 py-0.5 rounded'>
+          Sponsored
+        </span>
       </div>
       <div className='grid grid-cols-2 md:grid-cols-4 gap-3'>
         {ADS.map((ad) => (
