@@ -1,14 +1,9 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import useBrowsingHistory from '@/hooks/use-browsing-history'
 import ProductSlider from '@/components/shared/product/product-slider'
 import { Separator } from '@/components/ui/separator'
-import { useTranslations } from 'next-intl'
-// inside component:
-const t = useTranslations('Home')
-// then use:
-{t('Featured Promotions')}
-{t('Sponsored')}
 
 function PersonalisedSlider({
   title,
@@ -24,17 +19,19 @@ function PersonalisedSlider({
   const { products: history } = useBrowsingHistory()
   const [data, setData]       = useState([])
 
+  const historyIds = history.map((p) => p.id).join(',')
+  const historyCategories = history.map((p) => p.category).join(',')
+
   useEffect(() => {
-    if (!history.length) return
-    const ids        = history.map((p) => p.id).join(',')
-    const categories = history.map((p) => p.category).join(',')
+    if (!historyIds) return
 
     fetch(
-      `/api/products/browsing-history?type=${type}&ids=${ids}&categories=${categories}&excludeId=`
+      `/api/products/browsing-history?type=${type}&ids=${historyIds}&categories=${historyCategories}&excludeId=`
     )
       .then((r) => r.json())
       .then(setData)
-  }, [history, type])
+      .catch((err) => console.error('Personalised data fetch error:', err))
+  }, [historyIds, historyCategories, type])
 
   if (!data.length) return null
 
@@ -60,6 +57,8 @@ function PersonalisedSlider({
 
 export default function PersonalisedSections() {
   const { products } = useBrowsingHistory()
+  const t = useTranslations('Home') // Instantiated securely inside the component block
+
   if (!products.length) return null
 
   return (
