@@ -58,7 +58,11 @@
     "Grow Revenue": "Khulisa Inzuzo",
     "Fresh stock daily": "Impahla entsha nsuku zonke",
     "Free to get started": "Mahhala ukuqala",
-    "Up to 70% off": "Isaphulelo esifika ku-70%"
+    "Up to 70% off": "Isaphulelo esifika ku-70%",
+    "Related to items that you've viewed": "Kuhambelana lempahla oyibukileyo",
+    "Your browsing history": "Imbali yakho yokubuka",
+    "Most Popular Shoes For Sale": "Izicathulo ezidumileyo eziyisale",
+    "Shop Now": "Thenga Manje"
   },
   "Product": {
     "Only X left in stock - order soon": "Kusele {count} kuphela emshinini - thenga masinyane",
