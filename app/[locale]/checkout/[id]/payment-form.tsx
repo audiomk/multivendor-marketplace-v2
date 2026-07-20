@@ -150,80 +150,81 @@ export default function OrderDetailsForm({
             )}
 
             {!isPaid && paymentMethod === 'Cash On Delivery' && (
-  <Button
-    className='w-full rounded-full'
-    onClick={() => router.push(`/account/orders/${order._id}`)}
-  >
-    View Order
-  </Button>
-)}
+              <Button
+                className='w-full rounded-full'
+                onClick={() => router.push(`/account/orders/${order._id}`)}
+              >
+                View Order
+              </Button>
+            )}
 
-{!isPaid && paymentMethod === 'EcoCash' && (
-  <div className='space-y-3'>
-    <div className='bg-green-50 border border-green-200 rounded-lg p-4'>
-      <div className='flex items-center gap-2 mb-3'>
-        <div className='w-8 h-8 bg-green-600 rounded-full flex items-center
-                        justify-center text-white text-xs font-bold'>
-          EC
-        </div>
-        <span className='font-bold text-green-800'>EcoCash Payment</span>
-      </div>
-      <div className='space-y-2 text-sm'>
-        <p className='text-gray-600'>
-          Send payment to the following EcoCash number:
-        </p>
-        <div className='bg-white border border-green-300 rounded p-3'>
-          <p className='text-xs text-gray-500 mb-1'>Merchant Number</p>
-          <p className='text-xl font-bold text-green-700 tracking-wider'>
-            {process.env.NEXT_PUBLIC_ECOCASH_NUMBER || '077 XXX XXXX'}
-          </p>
-          <p className='text-xs text-gray-500 mt-1'>
-            {process.env.NEXT_PUBLIC_ECOCASH_NAME || 'MarketHub'}
-          </p>
-        </div>
-        <div className='bg-white border border-green-300 rounded p-3'>
-          <p className='text-xs text-gray-500 mb-1'>Amount to Send</p>
-          <p className='text-xl font-bold text-gray-900'>
-            <ProductPrice price={totalPrice} plain />
-          </p>
-        </div>
-        <div className='bg-yellow-50 border border-yellow-200 rounded p-2'>
-          <p className='text-xs text-yellow-800'>
-            <strong>Reference:</strong> Use your Order ID as reference
-          </p>
-          <p className='text-xs font-mono text-yellow-900 mt-1'>
-            {order._id.toString().slice(-8).toUpperCase()}
-          </p>
-        </div>
-      </div>
-      <div className='mt-3 space-y-2'>
-        <p className='text-xs text-gray-500'>
-          Steps: Dial <strong>*151#</strong> → Send Money →
-          Enter number → Enter amount → Enter PIN
-        </p>
-      </div>
-    </div>
-    <EcoCashConfirmButton orderId={order._id} />
-  </div>
-)}
+            {!isPaid && paymentMethod === 'EcoCash' && (
+              <div className='space-y-3'>
+                <div className='bg-green-50 border border-green-200 rounded-lg p-4'>
+                  <div className='flex items-center gap-2 mb-3'>
+                    <div className='w-8 h-8 bg-green-600 rounded-full flex items-center
+                                    justify-center text-white text-xs font-bold'>
+                      EC
+                    </div>
+                    <span className='font-bold text-green-800'>EcoCash Payment</span>
+                  </div>
+                  <div className='space-y-2 text-sm'>
+                    <p className='text-gray-600'>
+                      Send payment to the following EcoCash number:
+                    </p>
+                    <div className='bg-white border border-green-300 rounded p-3'>
+                      <p className='text-xs text-gray-500 mb-1'>Merchant Number</p>
+                      <p className='text-xl font-bold text-green-700 tracking-wider'>
+                        {process.env.NEXT_PUBLIC_ECOCASH_NUMBER || '077 XXX XXXX'}
+                      </p>
+                      <p className='text-xs text-gray-500 mt-1'>
+                        {process.env.NEXT_PUBLIC_ECOCASH_NAME || 'MarketHub'}
+                      </p>
+                    </div>
+                    <div className='bg-white border border-green-300 rounded p-3'>
+                      <p className='text-xs text-gray-500 mb-1'>Amount to Send</p>
+                      <p className='text-xl font-bold text-gray-900'>
+                        <ProductPrice price={totalPrice} plain />
+                      </p>
+                    </div>
+                    <div className='bg-yellow-50 border border-yellow-200 rounded p-2'>
+                      <p className='text-xs text-yellow-800'>
+                        <strong>Reference:</strong> Use your Order ID as reference
+                      </p>
+                      <p className='text-xs font-mono text-yellow-900 mt-1'>
+                        {order._id.toString().slice(-8).toUpperCase()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className='mt-3 space-y-2'>
+                    <p className='text-xs text-gray-500'>
+                      Steps: Dial <strong>*151#</strong> → Send Money →
+                      Enter number → Enter amount → Enter PIN
+                    </p>
+                  </div>
+                </div>
+                <EcoCashConfirmButton orderId={order._id} />
+              </div>
+            )}
+
+            {/* Paynow integration structural fix */}
+            {!isPaid && paymentMethod === 'Paynow' && (
+              <div className='space-y-3'>
+                <div className='flex items-center gap-2 mb-2'>
+                  <div className='w-8 h-8 bg-[#006D6B] rounded flex items-center
+                                  justify-center text-white text-xs font-bold'>
+                    PN
+                  </div>
+                  <span className='font-bold text-[#006D6B]'>Paynow</span>
+                </div>
+                <PaynowForm orderId={order._id} />
+              </div>
+            )}
           </div>
         </div>
       </CardContent>
     </Card>
   )
-
-{!isPaid && paymentMethod === 'Paynow' && (
-  <div className='space-y-3'>
-    <div className='flex items-center gap-2 mb-2'>
-      <div className='w-8 h-8 bg-[#006D6B] rounded flex items-center
-                      justify-center text-white text-xs font-bold'>
-        PN
-      </div>
-      <span className='font-bold text-[#006D6B]'>Paynow</span>
-    </div>
-    <PaynowForm orderId={order._id} />
-  </div>
-)}
 
   return (
     <main className='max-w-6xl mx-auto'>
