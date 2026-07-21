@@ -72,27 +72,51 @@ export default function PaynowForm({ orderId }: { orderId: string }) {
   return (
     <div className='space-y-4'>
       {/* Payment method selector */}
-      <div className='grid grid-cols-3 gap-2'>
-        {[
-          { value: 'web',      label: '🌐 Web', desc: 'Card / ZimSwitch' },
-          { value: 'ecocash',  label: '📱 EcoCash', desc: 'Econet' },
-          { value: 'onemoney', label: '📱 OneMoney', desc: 'NetOne' },
-        ].map(opt => (
-          <button
-            key={opt.value}
-            type='button'
-            onClick={() => setMethod(opt.value as any)}
-            className={`p-2 rounded-lg border text-xs text-center transition ${
-              method === opt.value
-                ? 'border-[#006D6B] bg-[#006D6B]/10 text-[#006D6B] font-semibold'
-                : 'border-gray-200 hover:border-gray-300'
-            }`}
-          >
-            <div>{opt.label}</div>
-            <div className='text-gray-500'>{opt.desc}</div>
-          </button>
-        ))}
-      </div>
+      {[
+  {
+    value: 'web',
+    label: 'Card / ZimSwitch',
+    img: 'https://www.paynow.co.zw/Content/Buttons/Pay-Now-WhiteButton-Small.png',
+    fallbackEmoji: '💳',
+  },
+  {
+    value: 'ecocash',
+    label: 'EcoCash',
+    img: 'https://www.paynow.co.zw/Content/Buttons/Ecocash_PayNow.png',
+    fallbackEmoji: '📱',
+  },
+  {
+    value: 'onemoney',
+    label: 'OneMoney',
+    img: 'https://www.paynow.co.zw/Content/Buttons/OneMoney_PayNow.png',
+    fallbackEmoji: '📱',
+  },
+].map(opt => (
+  <button
+    key={opt.value}
+    type='button'
+    onClick={() => setMethod(opt.value as any)}
+    className={`p-3 rounded-lg border-2 text-center transition flex flex-col
+                items-center gap-1 ${
+      method === opt.value
+        ? 'border-[#006D6B] bg-[#006D6B]/5'
+        : 'border-gray-200 hover:border-gray-300'
+    }`}
+  >
+    <img
+      src={opt.img}
+      alt={opt.label}
+      className='h-8 object-contain'
+      onError={e => {
+        // Fallback if image fails
+        e.currentTarget.style.display = 'none'
+        e.currentTarget.nextElementSibling!.textContent = opt.fallbackEmoji
+      }}
+    />
+    <span className='hidden text-xl'></span>
+    <span className='text-xs text-gray-600 font-medium'>{opt.label}</span>
+  </button>
+))}
 
       {/* Phone number for mobile methods */}
       {(method === 'ecocash' || method === 'onemoney') && (
