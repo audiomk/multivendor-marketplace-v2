@@ -4,6 +4,7 @@ import { IOrder } from '@/lib/db/models/order.model'
 import AskReviewOrderItemsEmail from './ask-review-order-items'
 import { SENDER_EMAIL, SENDER_NAME } from '@/lib/constants'
 import VendorApprovedEmail from './vendor-approved'
+import VendorNewOrderEmail from './vendor-new-order' // Ensure this template file exists in emails/
 
 const resend = new Resend(process.env.RESEND_API_KEY as string)
 
@@ -46,6 +47,31 @@ export const sendVendorApprovalEmail = async ({
         vendorName={vendorName}
         storeName={storeName}
         dashboardUrl={`${process.env.NEXT_PUBLIC_SERVER_URL}/vendor/overview`}
+      />
+    ),
+  })
+}
+
+export const sendVendorNewOrder = async ({
+  vendorEmail,
+  order,
+  vendorItems,
+  vendorPayout,
+}: {
+  vendorEmail:  string
+  order:        any
+  vendorItems:  any[]
+  vendorPayout: number
+}) => {
+  await resend.emails.send({
+    from:    `${SENDER_NAME} <${SENDER_EMAIL}>`,
+    to:      vendorEmail,
+    subject: `New Order Received #${order._id.toString().slice(-6)}`,
+    react: (
+      <VendorNewOrderEmail
+        order={order}
+        vendorItems={vendorItems}
+        vendorPayout={vendorPayout}
       />
     ),
   })
