@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { connectToDatabase } from '@/lib/db'
 import Order from '@/lib/db/models/order.model'
-import { createPaynowInstance } from '@/lib/paynow'
+import { createPaynowInstance, formatPaynowPhone } from '@/lib/paynow'
 
 export async function POST(req: Request) {
   try {
@@ -45,7 +45,9 @@ export async function POST(req: Request) {
     } else {
       // Mobile checkout — EcoCash or OneMoney
       const mobileMethod = method === 'onemoney' ? 'onemoney' : 'ecocash'
-      response = await paynow.sendMobile(payment, phone, mobileMethod)
+      const formattedPhone = formatPaynowPhone(phone)
+      console.log('Paynow mobile payment:', { formattedPhone, mobileMethod })
+      response = await paynow.sendMobile(payment, formattedPhone, mobileMethod)
     }
 
     if (!response.success) {
