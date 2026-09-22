@@ -61,7 +61,11 @@ export async function applyToBeVendor({
         storeName,
         storeSlug,
         bio,
-        isApproved: false,
+        // Vendors can start selling immediately — isApproved is now a
+        // suspend/reinstate switch for admins, not an application gate.
+        // Buyer trust instead comes from the separate `verification` badge
+        // (ID/tax/selfie review), which stays admin-gated.
+        isApproved: true,
         commission: 10,
       },
     }
@@ -72,6 +76,28 @@ export async function applyToBeVendor({
 
     await User.findByIdAndUpdate(userId, updateData)
     return { success: true, message: 'Application submitted' }
+  } catch (error) {
+    return { success: false, message: formatError(error) }
+  }
+}
+
+// Vendors submit their own WhatsApp number here; changing it always resets
+// whatsappVerified to false so a swapped number can't inherit the old
+// number's verified badge until an admin confirms it again.
+export async function updateVendorWhatsApp(whatsappNumber: string) {
+  try {
+    const { userId } = await requireSession()
+    const digits = whatsappNumber.replace(/\D/g, '')
+    if (digits.length < 9) {
+      throw new Error('Enter a valid WhatsApp number')
+    }
+    await connectToDatabase()
+    await User.findByIdAndUpdate(userId, {
+      'vendorProfile.whatsappNumber': whatsappNumber.trim(),
+      'vendorProfile.whatsappVerified': false,
+    })
+    revalidatePath('/vendor/settings')
+    return { success: true, message: 'WhatsApp number saved — pending verification' }
   } catch (error) {
     return { success: false, message: formatError(error) }
   }

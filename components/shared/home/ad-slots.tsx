@@ -1,50 +1,17 @@
-'use client'
-import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
+import { getBoostedProducts } from '@/lib/actions/boost.actions'
+import { BOOST_TIERS } from '@/lib/boost'
 
-export type AdSlot = {
-  id:      number
-  image:   string
-  href:    string
-  alt:     string
-  label?:  string
-}
-
-// Update your ads anytime
-const ADS: AdSlot[] = [
-  {
-    id:    1,
-    image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&h=200&fit=crop',
-    href:  '/search?category=smartphones',
-    alt:   'Tech Deals',
-    label: 'Mid-month Tech Upgrade — Save up to 50%',
-  },
-  {
-    id:    2,
-    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=200&fit=crop',
-    href:  '/search?category=kitchen-accessories',
-    alt:   'Kitchen Sale',
-    label: 'Kitchen Essentials — Save up to 45%',
-  },
-  {
-    id:    3,
-    image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&h=200&fit=crop',
-    href:  '/search?category=beauty',
-    alt:   'Beauty Deals',
-    label: 'Beauty & Skincare — Shop Now',
-  },
-  {
-    id:    4,
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=200&fit=crop',
-    href:  '/search?category=mens-watches',
-    alt:   'Watches',
-    label: 'New Arrivals — Watches & Accessories',
-  },
-]
-
-export default function AdSlots() {
-  const t = useTranslations('Home') // Instantiated correctly inside the component
+// Real, paid vendor placements (see /vendor/boost and lib/actions/boost.actions.ts).
+// Empty slots show an "Advertise here" card instead of stock-photo filler —
+// turns unsold ad inventory into a self-serve upsell for vendors.
+export default async function AdSlots() {
+  const t = await getTranslations('Home')
+  const maxSlots = BOOST_TIERS.spotlight.maxSlots || 4
+  const boosted = await getBoostedProducts({ tier: 'spotlight', limit: maxSlots })
+  const emptySlots = Math.max(0, maxSlots - boosted.length)
 
   return (
     <div className='space-y-3'>
@@ -55,27 +22,42 @@ export default function AdSlots() {
         </span>
       </div>
       <div className='grid grid-cols-2 md:grid-cols-4 gap-3'>
-        {ADS.map((ad) => (
+        {boosted.map((product: any) => (
           <Link
-            key={ad.id}
-            href={ad.href}
+            key={product._id}
+            href={`/product/${product.slug}`}
             className='group relative rounded-xl overflow-hidden
                        shadow-sm hover:shadow-md transition-shadow'
           >
             <div className='aspect-[3/2] relative'>
               <Image
-                src={ad.image}
-                alt={ad.alt}
+                src={product.images?.[0]}
+                alt={product.name}
                 fill
                 className='object-cover group-hover:scale-105 transition-transform duration-300'
               />
               <div className='absolute inset-0 bg-gradient-to-t
                               from-black/60 via-transparent to-transparent' />
               <p className='absolute bottom-2 left-2 right-2 text-white
-                            text-xs font-semibold leading-tight'>
-                {ad.label}
+                            text-xs font-semibold leading-tight line-clamp-2'>
+                {product.name}
               </p>
             </div>
+          </Link>
+        ))}
+        {Array.from({ length: emptySlots }).map((_, i) => (
+          <Link
+            key={`empty-${i}`}
+            href='/vendor/boost'
+            className='group relative rounded-xl overflow-hidden border-2 border-dashed
+                       border-gray-200 hover:border-[#006D6B] transition-colors
+                       aspect-[3/2] flex flex-col items-center justify-center gap-1 text-center p-3'
+          >
+            <span className='text-xl'>📣</span>
+            <p className='text-xs font-semibold text-gray-500 group-hover:text-[#006D6B]'>
+              Advertise here
+            </p>
+            <p className='text-[10px] text-gray-400'>${BOOST_TIERS.spotlight.pricePerWeek}/week</p>
           </Link>
         ))}
       </div>

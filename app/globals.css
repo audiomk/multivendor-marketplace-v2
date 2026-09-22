@@ -79,6 +79,20 @@ body {
   .web-page-content p {
     @apply py-2;
   }
+  .web-page-content ul {
+    @apply list-disc pl-6 py-2 space-y-1;
+  }
+  .web-page-content ol {
+    @apply list-decimal pl-6 py-2 space-y-1;
+  }
+  .web-page-content h1,
+  .web-page-content h2,
+  .web-page-content h3 {
+    @apply font-bold pt-4 pb-1;
+  }
+  .web-page-content a {
+    @apply text-sky-700 hover:underline;
+  }
   .highlight-link a,
   a.highlight-link {
     @apply text-sky-700 hover:text-orange-700 hover:underline;

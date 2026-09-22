@@ -8,6 +8,8 @@ export interface IVendorProfile {
   stripeAccountId: string
   isApproved: boolean
   commission: number
+  whatsappNumber: string
+  whatsappVerified: boolean
 }
 
 export interface IVerification {
@@ -53,6 +55,8 @@ const vendorProfileSchema = new Schema<IVendorProfile>({
   stripeAccountId: { type: String, default: '' },
   isApproved:      { type: Boolean, default: false },
   commission:      { type: Number, default: 10 },
+  whatsappNumber:   { type: String, default: '' },
+  whatsappVerified: { type: Boolean, default: false },
 }, { _id: false })
 
 const verificationSchema = new Schema<IVerification>({

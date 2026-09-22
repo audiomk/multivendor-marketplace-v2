@@ -11,16 +11,45 @@ export async function POST(req: Request) {
     }
 
     const { orderId, reference } = await req.json()
+    if (!orderId || typeof reference !== 'string' || !reference.trim()) {
+      return NextResponse.json({ error: 'orderId and reference are required' }, { status: 400 })
+    }
 
     await connectToDatabase()
 
-    // Mark order as pending EcoCash confirmation
-    await Order.findByIdAndUpdate(orderId, {
-      'paymentResult.id':            reference,
-      'paymentResult.status':        'ECOCASH_PENDING',
-      'paymentResult.email_address': session.user?.email || '',
-      'paymentResult.pricePaid':     '0',
+    const order = await Order.findById(orderId)
+    if (!order) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+    }
+    // Prevent submitting a reference against someone else's order
+    if (order.user.toString() !== session.user.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    }
+    if (order.isPaid) {
+      return NextResponse.json({ error: 'Order is already paid' }, { status: 400 })
+    }
+
+    // Reject a reference already tied to a different order, to make it
+    // harder to reuse one real EcoCash payment across multiple orders
+    const duplicate = await Order.findOne({
+      _id: { $ne: order._id },
+      'paymentResult.id': reference.trim(),
     })
+    if (duplicate) {
+      return NextResponse.json(
+        { error: 'This reference has already been submitted for another order' },
+        { status: 400 }
+      )
+    }
+
+    // Mark order as pending EcoCash confirmation
+    order.paymentResult = {
+      id: reference.trim(),
+      status: 'ECOCASH_PENDING',
+      email_address: session.user?.email || '',
+      pricePaid: '0',
+    }
+    await order.save()
 
     return NextResponse.json({
       success: true,

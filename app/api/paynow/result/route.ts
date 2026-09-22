@@ -1,35 +1,36 @@
-import { NextResponse } from 'next/server'
 import { connectToDatabase } from '@/lib/db'
 import Order from '@/lib/db/models/order.model'
 import { splitOrderByVendor } from '@/lib/actions/payment.actions'
+import { createPaynowInstance } from '@/lib/paynow'
 
 export async function POST(req: Request) {
   try {
-    const body   = await req.text()
-    const params = new URLSearchParams(body)
-
-    const status    = params.get('status')?.toLowerCase()
-    const pollUrl   = params.get('pollurl') || ''
-    const paynowRef = params.get('paynowreference') || ''
-    const amount    = params.get('amount') || '0'
+    const body    = await req.text()
+    const pollUrl = new URLSearchParams(body).get('pollurl') || ''
+    if (!pollUrl) return new Response('Missing pollurl', { status: 400 })
 
     await connectToDatabase()
 
-    if (status === 'paid' || status === 'awaiting delivery') {
-      // Find order by poll URL
-      const order = await Order.findOneAndUpdate(
-        { 'paymentResult.paynowPollUrl': pollUrl },
-        {
-          isPaid:  true,
-          paidAt:  new Date(),
-          'paymentResult.id':          paynowRef,
-          'paymentResult.status':      'COMPLETED',
-          'paymentResult.pricePaid':   amount,
-        },
-        { new: true }
-      )
+    // Never trust the status Paynow's POST body claims — poll Paynow's own
+    // server for the real status. pollTransaction() validates the response
+    // hash against our integration key, so a forged callback can't fake it.
+    const paynow = createPaynowInstance()
+    const result = await paynow.pollTransaction(pollUrl)
 
-      if (order) {
+    if (result?.status?.toLowerCase() === 'paid') {
+      const order = await Order.findOne({ 'paymentResult.paynowPollUrl': pollUrl })
+
+      if (order && !order.isPaid) {
+        order.isPaid = true
+        order.paidAt = new Date()
+        order.paymentResult = {
+          id: order.paymentResult?.id ?? '',
+          status: 'COMPLETED',
+          email_address: order.paymentResult?.email_address ?? '',
+          pricePaid: order.paymentResult?.pricePaid ?? '',
+        }
+        await order.save()
+
         await splitOrderByVendor(order._id.toString())
         console.log(`Order ${order._id} paid and split via Paynow`)
       }
@@ -39,40 +40,5 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error('Paynow result error:', err)
     return new Response('Error', { status: 500 })
-  }
-}
-
-// Test endpoint — manually trigger split for an order
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url)
-  const orderId = searchParams.get('orderId')
-  const secret  = searchParams.get('secret')
-
-  // Only allow in dev or with secret
-  if (
-    process.env.NODE_ENV !== 'development' &&
-    secret !== process.env.AUTH_SECRET?.slice(0, 8)
-  ) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
-
-  if (!orderId) {
-    return NextResponse.json({ error: 'orderId required' }, { status: 400 })
-  }
-
-  try {
-    await connectToDatabase()
-
-    await Order.findByIdAndUpdate(orderId, {
-      isPaid:  true,
-      paidAt:  new Date(),
-      'paymentResult.status': 'COMPLETED',
-      'paymentResult.id':     'test-paynow-ref',
-    })
-
-    const result = await splitOrderByVendor(orderId)
-    return NextResponse.json({ success: true, result })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 })
   }
 }

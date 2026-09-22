@@ -7,7 +7,9 @@ import {
 } from '@paypal/react-paypal-js'
 import { Card, CardContent } from '@/components/ui/card'
 import EcoCashConfirmButton from './ecocash-confirm-button'
+import EcoCashDirectButton from './ecocash-direct-button'
 import PaynowForm from './paynow-form'
+import ZimswitchForm from './zimswitch-form'
 import { useToast } from '@/hooks/use-toast'
 import {
   approvePayPalOrder,
@@ -204,6 +206,7 @@ export default function OrderDetailsForm({
                   </div>
                 </div>
                 <EcoCashConfirmButton orderId={order._id} />
+                <EcoCashDirectButton orderId={order._id} />
               </div>
             )}
 
@@ -218,6 +221,19 @@ export default function OrderDetailsForm({
                   <span className='font-bold text-[#006D6B]'>Paynow</span>
                 </div>
                 <PaynowForm orderId={order._id} />
+              </div>
+            )}
+
+            {!isPaid && paymentMethod === 'Zimswitch' && (
+              <div className='space-y-3'>
+                <div className='flex items-center gap-2 mb-2'>
+                  <div className='w-8 h-8 bg-[#006D6B] rounded flex items-center
+                                  justify-center text-white text-xs font-bold'>
+                    ZS
+                  </div>
+                  <span className='font-bold text-[#006D6B]'>Zimswitch</span>
+                </div>
+                <ZimswitchForm orderId={order._id} />
               </div>
             )}
           </div>

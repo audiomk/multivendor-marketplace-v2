@@ -19,6 +19,12 @@ export async function POST(req: Request) {
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
+    if (order.user.toString() !== session.user.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    }
+    if (order.isPaid) {
+      return NextResponse.json({ error: 'Order is already paid' }, { status: 400 })
+    }
 
     const paynow  = createPaynowInstance()
     const email   = session.user?.email || 'customer@indabacart.com'

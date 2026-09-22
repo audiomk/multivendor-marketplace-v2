@@ -10,7 +10,7 @@ export default function VendorActions({
   id, type
 }: {
   id: string
-  type: 'pending' | 'approved'
+  type: 'suspended' | 'active'
 }) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -25,15 +25,15 @@ export default function VendorActions({
     router.refresh()
   }
 
-  if (type === 'pending') return (
+  if (type === 'suspended') return (
     <div className='flex gap-2'>
       <Button size='sm' onClick={() => handle('approve')} disabled={loading}
         className='bg-green-600 hover:bg-green-700'>
-        Approve
+        Reinstate
       </Button>
       <Button size='sm' variant='destructive'
         onClick={() => handle('reject')} disabled={loading}>
-        Reject
+        Remove Vendor
       </Button>
     </div>
   )

@@ -3,6 +3,8 @@
     "Hello": "Bonjour",
     "sign in": "Se connecter",
     "All": "Tout",
+    "Categories": "Catégories",
+    "Browse categories": "Parcourir les catégories",
     "Gold": "Or",
     "Green": "Vert",
     "Red": "Rouge",
@@ -250,6 +252,9 @@
     "Status": "Statut",
     "Actions": "Actions",
     "Details": "Détails",
-    "Vendors": "Vendeurs"
+    "Vendors": "Vendeurs",
+    "Payouts": "Paiements",
+    "Boosts": "Mises en avant",
+    "Verifications": "Vérifications"
   }
 }

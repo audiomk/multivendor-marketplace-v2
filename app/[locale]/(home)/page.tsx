@@ -9,10 +9,23 @@ import {
   getAllCategories,
 } from '@/lib/actions/product.actions'
 import { getSetting } from '@/lib/actions/setting.actions'
+import { getBoostedProducts } from '@/lib/actions/boost.actions'
 import AdSlots from '@/components/shared/home/ad-slots'
 import PersonalisedSections from '@/components/shared/home/personalised-sections'
 import { toSlug } from '@/lib/utils'
 import { getTranslations } from 'next-intl/server'
+
+// Puts paid boosts first, then fills the rest with the organic list,
+// without ever showing the same product twice. Keyed by a field common to
+// both shapes (full Product docs use `_id`, homepage card items use `href`).
+function mergeBoosted<T>(boosted: T[], organic: T[], limit: number, key: (item: T) => string): T[] {
+  const boostedKeys = new Set(boosted.map(key))
+  return [...boosted, ...organic.filter((p) => !boostedKeys.has(key(p)))].slice(0, limit)
+}
+
+function toCardShape(p: any) {
+  return { name: p.name, href: `/product/${p.slug}`, image: p.images?.[0] }
+}
 
 function getCategoryImage(slug: string): string {
   const map: Record<string, string> = {
@@ -47,13 +60,29 @@ function getCategoryImage(slug: string): string {
 export default async function HomePage() {
   const t               = await getTranslations('Home')
   const { carousels }   = await getSetting()
-  const todaysDeals     = await getProductsByTag({ tag: 'todays-deal' })
-  const bestSelling     = await getProductsByTag({ tag: 'best-seller' })
-  const newArrivals     = await getProductsByTag({ tag: 'new-arrival', limit: 8 })
-  const categories      = (await getAllCategories()).slice(0, 8)
-  const featuredCards   = await getProductsForCard({ tag: 'featured' })
-  const newArrivalCards = await getProductsForCard({ tag: 'new-arrival' })
-  const bestSellerCards = await getProductsForCard({ tag: 'best-seller' })
+  const [
+    todaysDealsOrganic, bestSelling, newArrivals, categoriesAll,
+    featuredCardsOrganic, newArrivalCards, bestSellerCards,
+    boostedDeals, boostedFeatured,
+  ] = await Promise.all([
+    getProductsByTag({ tag: 'todays-deal' }),
+    getProductsByTag({ tag: 'best-seller' }),
+    getProductsByTag({ tag: 'new-arrival', limit: 8 }),
+    getAllCategories(),
+    getProductsForCard({ tag: 'featured' }),
+    getProductsForCard({ tag: 'new-arrival' }),
+    getProductsForCard({ tag: 'best-seller' }),
+    getBoostedProducts({ tier: 'deal', limit: 4 }),
+    getBoostedProducts({ tier: 'featured', limit: 4 }),
+  ])
+  const categories    = categoriesAll.slice(0, 8)
+  const todaysDeals   = mergeBoosted(boostedDeals, todaysDealsOrganic, 10, (p: any) => p._id)
+  const featuredCards = mergeBoosted(
+    boostedFeatured.map(toCardShape),
+    featuredCardsOrganic,
+    4,
+    (p: any) => p.href
+  )
 
   return (
     <div className='bg-[#F5F5F5] min-h-screen'>
@@ -108,68 +137,57 @@ export default async function HomePage() {
 
       <div className='max-w-7xl mx-auto px-4 py-6 space-y-8'>
 
-        {/* Promo Banners Row */}
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+        {/* Promo Banners Row — always 3 across, scaled down on mobile rather
+            than stacking (same idea as the category strip above) */}
+        <div className='grid grid-cols-3 gap-2 md:gap-4'>
           <Link
             href='/search?tag=todays-deal'
-            className='rounded-xl overflow-hidden relative h-36 flex items-center
-                       px-6 group'
+            className='rounded-lg md:rounded-xl overflow-hidden h-20 md:h-36 flex flex-col
+                       justify-center px-2.5 md:px-6 group'
             style={{ background: 'linear-gradient(135deg, #006D6B, #004a48)' }}
           >
-            <div className='z-10'>
-              <p className='text-[#FABB02] text-xs font-bold uppercase tracking-wider'>
-                {t('Limited Time')}
-              </p>
-              <p className='text-white text-xl font-extrabold mt-1'>
-                {t("Today's Deals")}
-              </p>
-              <p className='text-gray-300 text-xs mt-1'>
-                {t('Up to 70% off')}
-              </p>
-            </div>
-            <span className='absolute right-4 text-5xl
-                             group-hover:scale-110 transition-transform'>🔥</span>
+            <p className='text-[#FABB02] text-[9px] md:text-xs font-bold uppercase tracking-wider'>
+              {t('Limited Time')}
+            </p>
+            <p className='text-white text-xs md:text-xl font-extrabold mt-0.5 md:mt-1 leading-tight'>
+              {t("Today's Deals")}
+            </p>
+            <p className='hidden md:block text-gray-300 text-xs mt-1'>
+              {t('Up to 70% off')}
+            </p>
           </Link>
 
           <Link
             href='/search?tag=new-arrival'
-            className='rounded-xl overflow-hidden relative h-36 flex items-center
-                       px-6 group'
+            className='rounded-lg md:rounded-xl overflow-hidden h-20 md:h-36 flex flex-col
+                       justify-center px-2.5 md:px-6 group'
             style={{ background: 'linear-gradient(135deg, #FABB02, #e6a800)' }}
           >
-            <div className='z-10'>
-              <p className='text-[#006D6B] text-xs font-bold uppercase tracking-wider'>
-                {t('Just In')}
-              </p>
-              <p className='text-gray-900 text-xl font-extrabold mt-1'>
-                {t('New Arrivals')}
-              </p>
-              <p className='text-gray-700 text-xs mt-1'>
-                {t('Fresh stock daily')}
-              </p>
-            </div>
-            <span className='absolute right-4 text-5xl
-                             group-hover:scale-110 transition-transform'>✨</span>
+            <p className='text-[#006D6B] text-[9px] md:text-xs font-bold uppercase tracking-wider'>
+              {t('Just In')}
+            </p>
+            <p className='text-gray-900 text-xs md:text-xl font-extrabold mt-0.5 md:mt-1 leading-tight'>
+              {t('New Arrivals')}
+            </p>
+            <p className='hidden md:block text-gray-700 text-xs mt-1'>
+              {t('Fresh stock daily')}
+            </p>
           </Link>
 
           <Link
             href='/become-vendor'
-            className='rounded-xl overflow-hidden relative h-36 flex items-center
-                       px-6 group bg-gray-900'
+            className='rounded-lg md:rounded-xl overflow-hidden h-20 md:h-36 flex flex-col
+                       justify-center px-2.5 md:px-6 group bg-gray-900'
           >
-            <div className='z-10'>
-              <p className='text-[#FABB02] text-xs font-bold uppercase tracking-wider'>
-                {t('Grow Revenue')}
-              </p>
-              <p className='text-white text-xl font-extrabold mt-1'>
-                {t('Start Selling Today')}
-              </p>
-              <p className='text-gray-400 text-xs mt-1'>
-                {t('Free to get started')}
-              </p>
-            </div>
-            <span className='absolute right-4 text-5xl
-                             group-hover:scale-110 transition-transform'>🏪</span>
+            <p className='text-[#FABB02] text-[9px] md:text-xs font-bold uppercase tracking-wider'>
+              {t('Grow Revenue')}
+            </p>
+            <p className='text-white text-xs md:text-xl font-extrabold mt-0.5 md:mt-1 leading-tight'>
+              {t('Start Selling Today')}
+            </p>
+            <p className='hidden md:block text-gray-400 text-xs mt-1'>
+              {t('Free to get started')}
+            </p>
           </Link>
         </div>
 

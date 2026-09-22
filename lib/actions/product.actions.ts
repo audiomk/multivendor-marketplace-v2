@@ -8,10 +8,12 @@ import { ProductInputSchema, ProductUpdateSchema } from '../validator'
 import { IProductInput } from '@/types'
 import { z } from 'zod'
 import { getSetting } from './setting.actions'
+import { checkAdmin } from './auth-guards'
 
 // CREATE
 export async function createProduct(data: IProductInput) {
   try {
+    await checkAdmin()
     const product = ProductInputSchema.parse(data)
     await connectToDatabase()
     await Product.create(product)
@@ -25,6 +27,7 @@ export async function createProduct(data: IProductInput) {
 // UPDATE
 export async function updateProduct(data: z.infer<typeof ProductUpdateSchema>) {
   try {
+    await checkAdmin()
     const product = ProductUpdateSchema.parse(data)
     await connectToDatabase()
     await Product.findByIdAndUpdate(product._id, product)
@@ -38,6 +41,7 @@ export async function updateProduct(data: z.infer<typeof ProductUpdateSchema>) {
 // DELETE
 export async function deleteProduct(id: string) {
   try {
+    await checkAdmin()
     await connectToDatabase()
     const res = await Product.findByIdAndDelete(id)
     if (!res) throw new Error('Product not found')

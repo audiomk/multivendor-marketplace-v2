@@ -4,18 +4,9 @@ import { connectToDatabase } from '@/lib/db'
 import User from '@/lib/db/models/user.model'
 import Order from '@/lib/db/models/order.model'
 import Product from '@/lib/db/models/product.model'
-import { auth } from '@/auth'
 import { revalidatePath } from 'next/cache'
 import { formatError } from '../utils'
-
-async function checkAdmin() {
-  const session = await auth()
-  const role = (session?.user as any)?.role
-  if (role !== 'admin' && role !== 'Admin') {
-    throw new Error('Unauthorized')
-  }
-  return session
-}
+import { checkAdmin } from './auth-guards'
 
 // Get all vendors
 export async function getAllVendors() {
@@ -23,7 +14,7 @@ export async function getAllVendors() {
     await checkAdmin()
     await connectToDatabase()
     const vendors = await User.find({ role: 'vendor' })
-      .select('name email vendorProfile createdAt')
+      .select('name email vendorProfile verification createdAt')
       .lean()
     return { success: true, data: JSON.parse(JSON.stringify(vendors)) }
   } catch (error) {
@@ -105,6 +96,99 @@ export async function updateVendorCommission(id: string, commission: number) {
     })
     revalidatePath('/admin/vendors')
     return { success: true, message: 'Commission updated' }
+  } catch (error) {
+    return { success: false, message: formatError(error) }
+  }
+}
+
+// Confirm (or revoke) a vendor's submitted WhatsApp number. This is a
+// manual check by design — call/message the number yourself to confirm
+// it's really theirs before verifying, there's no automated OTP step here.
+export async function setVendorWhatsAppVerified(id: string, verified: boolean) {
+  try {
+    await checkAdmin()
+    await connectToDatabase()
+    await User.findByIdAndUpdate(id, {
+      'vendorProfile.whatsappVerified': verified,
+    })
+    revalidatePath('/admin/vendors')
+    return { success: true, message: verified ? 'WhatsApp number verified' : 'Verification revoked' }
+  } catch (error) {
+    return { success: false, message: formatError(error) }
+  }
+}
+
+// Mark a vendor's payout for one order as manually paid (e.g. EcoCash,
+// bank transfer) — the fallback path since Stripe Connect doesn't support
+// Zimbabwe-based recipients, so vendorPayout.stripeTransferId will be empty
+// for essentially every local vendor.
+export async function markVendorPayoutPaid({
+  orderId,
+  vendorId,
+  method,
+  reference,
+  notes,
+}: {
+  orderId: string
+  vendorId: string
+  method: 'ecocash' | 'bank_transfer' | 'other'
+  reference: string
+  notes?: string
+}) {
+  try {
+    await checkAdmin()
+    if (!reference.trim()) throw new Error('A payout reference is required')
+    await connectToDatabase()
+
+    const res = await Order.updateOne(
+      { _id: orderId, 'vendorOrders.vendorId': vendorId },
+      {
+        $set: {
+          'vendorOrders.$.payoutStatus': 'paid',
+          'vendorOrders.$.payoutMethod': method,
+          'vendorOrders.$.payoutReference': reference.trim(),
+          'vendorOrders.$.payoutNotes': notes?.trim() || '',
+          'vendorOrders.$.payoutPaidAt': new Date(),
+        },
+      }
+    )
+    if (res.matchedCount === 0) throw new Error('Vendor order not found')
+
+    revalidatePath('/admin/vendors/payouts')
+    return { success: true, message: 'Payout marked as paid' }
+  } catch (error) {
+    return { success: false, message: formatError(error) }
+  }
+}
+
+// Reverse a payout marked paid by mistake
+export async function markVendorPayoutUnpaid({
+  orderId,
+  vendorId,
+}: {
+  orderId: string
+  vendorId: string
+}) {
+  try {
+    await checkAdmin()
+    await connectToDatabase()
+
+    const res = await Order.updateOne(
+      { _id: orderId, 'vendorOrders.vendorId': vendorId },
+      {
+        $set: {
+          'vendorOrders.$.payoutStatus': 'unpaid',
+          'vendorOrders.$.payoutMethod': '',
+          'vendorOrders.$.payoutReference': '',
+          'vendorOrders.$.payoutNotes': '',
+        },
+        $unset: { 'vendorOrders.$.payoutPaidAt': '' },
+      }
+    )
+    if (res.matchedCount === 0) throw new Error('Vendor order not found')
+
+    revalidatePath('/admin/vendors/payouts')
+    return { success: true, message: 'Payout reverted to unpaid' }
   } catch (error) {
     return { success: false, message: formatError(error) }
   }

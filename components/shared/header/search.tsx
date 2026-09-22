@@ -59,20 +59,23 @@ export default function Search({
     <div ref={ref} className='relative flex-1'>
       <form
         onSubmit={e => { e.preventDefault(); handleSearch(query) }}
-        className='flex items-stretch h-10'
+        className='flex items-stretch h-10 gap-1.5 pl-1'
       >
-        {/* Category selector */}
+        {/* Category selector — compact, no visible segment/border */}
         <select
           value={category}
           onChange={e => setCategory(e.target.value)}
-          className='w-auto h-full bg-gray-100 text-black border-r
-                     rounded-l-md px-2 text-sm outline-none'
+          aria-label={allLabel}
+          className='shrink-0 max-w-[92px] h-full bg-transparent text-muted-foreground
+                     text-xs px-1 outline-none border-none'
         >
           <option value='all'>{allLabel}</option>
           {categories.map(cat => (
             <option key={cat} value={cat}>{cat}</option>
           ))}
         </select>
+
+        <span className='w-px my-2 bg-border' />
 
         {/* Search input */}
         <input
@@ -81,35 +84,36 @@ export default function Search({
           onChange={e => setQuery(e.target.value)}
           onFocus={() => suggestions.length > 0 && setOpen(true)}
           placeholder={placeholder}
-          className='flex-1 bg-gray-100 text-black text-sm px-4
+          className='flex-1 bg-transparent text-foreground text-sm px-1
                      outline-none h-full'
         />
 
         {/* Submit button */}
         <button
           type='submit'
-          className='h-full px-3 py-2 rounded-r-md'
+          aria-label={placeholder}
+          className='shrink-0 my-1 mr-1 aspect-square h-8 flex items-center justify-center rounded-full'
           style={{ background: '#FABB02' }}
         >
-          <SearchIcon className='w-5 h-5 text-black' />
+          <SearchIcon className='w-4 h-4 text-[#006D6B]' />
         </button>
       </form>
 
       {/* Autocomplete dropdown */}
       {open && suggestions.length > 0 && (
-        <div className='absolute top-full left-0 right-0 bg-white border
-                        border-gray-200 rounded-lg shadow-xl z-50 mt-1
+        <div className='absolute top-full left-0 right-0 bg-card border
+                        border-border rounded-lg shadow-xl z-50 mt-1
                         max-h-64 overflow-y-auto'>
           {suggestions.map((s, i) => (
             <button
               key={i}
               type='button'
               onClick={() => handleSearch(s)}
-              className='w-full text-left px-4 py-2 text-sm text-gray-900
-           hover:bg-[#F5F5F5] flex items-center gap-2
+              className='w-full text-left px-4 py-2 text-sm text-card-foreground
+           hover:bg-muted flex items-center gap-2
            transition-colors'
             >
-              <SearchIcon size={13} className='text-gray-400 shrink-0' />
+              <SearchIcon size={13} className='text-muted-foreground shrink-0' />
               <span
                 dangerouslySetInnerHTML={{
                   __html: s.replace(

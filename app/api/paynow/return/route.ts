@@ -14,7 +14,7 @@ export async function GET(req: Request) {
       const paynow = createPaynowInstance()
       const status = await paynow.pollTransaction(pollUrl)
 
-      if (status.paid()) {
+      if (status?.status?.toLowerCase() === 'paid') {
         // Find order by poll URL and redirect to order page
         const order = await Order.findOne({
           'paymentResult.paynowPollUrl': pollUrl

@@ -3,6 +3,8 @@
     "Hello": "Mhoro",
     "sign in": "pinda",
     "All": "Zvese",
+    "Categories": "Zvikamu",
+    "Browse categories": "Ona Zvikamu",
     "Gold": "Ndarama",
     "Green": "Sora",
     "Red": "Tsvuku",
@@ -250,6 +252,9 @@
     "Status": "Mamiriro ezvinhu",
     "Actions": "Zvekuita",
     "Details": "Zvakadzama",
-    "Vendors": "Vatengesi"
+    "Vendors": "Vatengesi",
+    "Payouts": "Mibhadharo",
+    "Boosts": "Kusimudzirwa",
+    "Verifications": "Kusimbiswa"
   }
 }

@@ -19,6 +19,7 @@ import { buttonVariants } from '@/components/ui/button'
 import ProductPrice from '../product/product-price'
 import ActionButton from '../action-button'
 import { deliverOrder, updateOrderToPaid } from '@/lib/actions/order.actions'
+import { buildWhatsAppLink, buildOrderNotificationMessage } from '@/lib/whatsapp'
 
 export default function OrderDetailsForm({
   order,
@@ -122,6 +123,67 @@ export default function OrderDetailsForm({
             </Table>
           </CardContent>
         </Card>
+
+        {isAdmin && (order as any).vendorOrders?.length > 0 && (
+          <Card>
+            <CardContent className='p-4 gap-4'>
+              <h2 className='text-xl pb-4'>Vendors on this order</h2>
+              <div className='space-y-3'>
+                {(order as any).vendorOrders.map((vo: any) => {
+                  const vendor = vo.vendorId
+                  const profile = vendor?.vendorProfile
+                  const storeName = profile?.storeName || vendor?.name || 'Vendor'
+                  const canMessage = profile?.whatsappVerified && profile?.whatsappNumber
+                  const itemsSummary = items
+                    .filter((i: any) =>
+                      (vo.items || []).some((pid: any) => pid.toString() === i.product.toString())
+                    )
+                    .map((i: any) => i.name)
+                    .join(', ')
+
+                  return (
+                    <div
+                      key={vendor?._id || vo.vendorId}
+                      className='flex items-center justify-between gap-3 border-b pb-3 last:border-0 last:pb-0'
+                    >
+                      <div>
+                        <p className='font-medium text-sm'>{storeName}</p>
+                        <p className='text-xs text-muted-foreground'>
+                          Payout: <ProductPrice price={vo.vendorPayout} plain />
+                        </p>
+                      </div>
+                      {canMessage ? (
+                        <a
+                          href={buildWhatsAppLink(
+                            profile.whatsappNumber,
+                            buildOrderNotificationMessage({
+                              storeName,
+                              orderShortId: order._id.toString().slice(-8).toUpperCase(),
+                              itemsSummary,
+                              vendorPayout: vo.vendorPayout,
+                            })
+                          )}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          className={cn(
+                            buttonVariants({ variant: 'outline' }),
+                            'text-xs whitespace-nowrap'
+                          )}
+                        >
+                          📲 Message on WhatsApp
+                        </a>
+                      ) : (
+                        <span className='text-xs text-muted-foreground whitespace-nowrap'>
+                          No verified WhatsApp
+                        </span>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
       <div>
         <Card>

@@ -1,87 +1,9 @@
-// import Image from 'next/image'
-// import Link from 'next/link'
-// import { getAllCategories } from '@/lib/actions/product.actions'
-// import Menu from './menu'
-// import Search from './search'
-// import data from '@/lib/data'
-// import Sidebar from './sidebar'
-// import { getSetting } from '@/lib/actions/setting.actions'
-// import { getTranslations } from 'next-intl/server'
-
-// export default async function Header() {
-//   const categories  = await getAllCategories()
-//   const { site }    = await getSetting()
-//   const t           = await getTranslations()
-
-//   return (
-//     <header className='text-white' style={{ background: '#006D6B' }}>
-//       <div className='px-2'>
-//         <div className='flex items-center gap-2'>
-//           {/* Logo */}
-//           <Link
-//             href='/'
-//             className='flex items-center header-button font-extrabold text-2xl m-1 shrink-0'
-//           >
-//             <Image
-//               src={site.logo}
-//               width={40}
-//               height={40}
-//               alt={`${site.name} logo`}
-//               className='mr-2'
-//             />
-//             <span style={{ color: '#FABB02' }}>Indaba</span>
-//             <span className='text-white ml-1'>Cart</span>
-//           </Link>
-
-//           {/* Search — desktop */}
-//           <div className='hidden md:flex flex-1 max-w-2xl'>
-//             <Search
-//               categories={categories}
-//               siteName={site.name}
-//               placeholder={t('Header.Search Site', { name: site.name })}
-//               allLabel={t('Header.All')}
-//             />
-//           </div>
-
-//           <Menu />
-//         </div>
-
-//         {/* Search — mobile */}
-//         <div className='md:hidden py-2'>
-//           <Search
-//             categories={categories}
-//             siteName={site.name}
-//             placeholder={t('Header.Search Site', { name: site.name })}
-//             allLabel={t('Header.All')}
-//           />
-//         </div>
-//       </div>
-
-//       {/* Sub nav */}
-//       <div
-//         className='flex items-center px-3 mb-[1px]'
-//         style={{ background: '#005554' }}
-//       >
-//         <Sidebar categories={categories} />
-//         <div className='flex items-center flex-wrap gap-3 overflow-hidden max-h-[42px]'>
-//           {data.headerMenus.map((menu) => (
-//             <Link
-//               href={menu.href}
-//               key={menu.href}
-//               className='header-button !p-2 hover:text-[#FABB02] transition-colors'
-//             >
-//               {t('Header.' + menu.name)}
-//             </Link>
-//           ))}
-//         </div>
-//       </div>
-//     </header>
-//   )
-// }
-
 import Image from 'next/image'
 import Link from 'next/link'
-import { Bell, Camera, Heart, HelpCircle, Store } from 'lucide-react'
+import {
+  Bell, Camera, Flame, HelpCircle, Heart, History,
+  Info, Sparkles, Star, Store, Trophy,
+} from 'lucide-react'
 import { auth } from '@/auth'
 import { getAllCategories } from '@/lib/actions/product.actions'
 import Menu from './menu'
@@ -90,6 +12,17 @@ import data from '@/lib/data'
 import Sidebar from './sidebar'
 import { getSetting } from '@/lib/actions/setting.actions'
 import { getTranslations } from 'next-intl/server'
+
+// One icon per header-menu item, matched by name — falls back to Sparkles.
+const MENU_ICONS: Record<string, typeof Flame> = {
+  "Today's Deal": Flame,
+  'New Arrivals': Sparkles,
+  'Featured Products': Star,
+  'Best Sellers': Trophy,
+  'Browsing History': History,
+  'Customer Service': HelpCircle,
+  'About Us': Info,
+}
 
 export default async function Header() {
   const session     = await auth()
@@ -100,18 +33,28 @@ export default async function Header() {
   const firstName = session?.user?.name?.split(' ')[0]
 
   return (
-    <header>
-      {/* Utility bar */}
+    <header className='relative'>
+      {/* Colour band — curved bottom edge, not a flat rectangle */}
       <div
-        className='hidden sm:flex items-center justify-between px-4 py-1 text-xs text-white/85'
-        style={{ background: '#004E4C' }}
+        className='relative pb-9 rounded-b-[28px] overflow-hidden'
+        style={{ background: 'linear-gradient(135deg, #00807D 0%, #004E4C 100%)' }}
       >
-        <span>
+        {/* faint decorative rings — texture instead of a flat fill */}
+        <div
+          className='pointer-events-none absolute -right-10 -top-16 w-56 h-56 rounded-full'
+          style={{ background: 'radial-gradient(circle, rgba(250,187,2,0.12) 0%, transparent 70%)' }}
+        />
+        <div
+          className='pointer-events-none absolute right-24 top-6 w-24 h-24 rounded-full border border-white/10'
+        />
+
+        {/* Utility line */}
+        <div className='hidden sm:flex items-center justify-end gap-4 px-4 pt-2 text-xs text-white/70 relative'>
           {firstName && (
-            <>Hi, <span className='font-semibold text-white'>{firstName}</span></>
+            <span className='mr-auto'>
+              Hi, <span className='font-semibold text-white'>{firstName}</span>
+            </span>
           )}
-        </span>
-        <div className='flex items-center gap-4 ml-auto'>
           <Link
             href='/become-vendor'
             className='flex items-center gap-1 hover:text-[#FABB02] transition-colors'
@@ -127,117 +70,87 @@ export default async function Header() {
             Help
           </Link>
         </div>
-      </div>
 
-      {/* Main bar — inverted: white bg, teal lettering, logo through cart */}
-      <div className='px-2 bg-white text-[#006D6B] border-b border-gray-100'>
-        <div className='flex items-center gap-2'>
-          {/* Logo */}
-          <Link
-            href='/'
-            className='flex items-center header-button font-extrabold text-2xl m-1 shrink-0 tracking-tight'
-          >
-            <Image
-              src={site.logo}
-              width={40}
-              height={40}
-              alt={`${site.name} logo`}
-              className='mr-2'
-            />
-            <span style={{ color: '#FABB02' }}>Indaba</span>
-            <span className='text-[#006D6B] ml-1'>Cart</span>
+        {/* Logo + icon cluster — no search bar in this row */}
+        <div className='flex items-center justify-between gap-3 px-4 pt-3 relative'>
+          <Link href='/' className='flex items-center gap-2 shrink-0'>
+            <span className='relative flex items-center justify-center w-10 h-10 shrink-0 rounded-full bg-white/15 ring-1 ring-white/25'>
+              <Image
+                src={site.logo}
+                width={22}
+                height={22}
+                alt={`${site.name} logo`}
+                style={{ filter: 'brightness(0) invert(1)' }}
+              />
+            </span>
+            <span className='leading-none'>
+              <span className='block font-extrabold text-2xl tracking-tight text-white'>
+                Indaba<span style={{ color: '#FABB02' }}>Cart</span>
+              </span>
+              <span className='hidden sm:block text-[11px] text-white/60 tracking-wide'>
+                An Indaba Worth Having
+              </span>
+            </span>
           </Link>
 
-          {/* Search — desktop */}
-          <div className='hidden md:flex flex-1 max-w-2xl'>
-            <div className='relative w-full rounded-full border border-gray-200 focus-within:border-[#FABB02] focus-within:ring-2 focus-within:ring-[#FABB02]/40 transition-all'>
-              <Search
-                categories={categories}
-                siteName={site.name}
-                placeholder={t('Header.Search Site', { name: site.name })}
-                allLabel={t('Header.All')}
-              />
-              <button
-                type='button'
-                aria-label='Search by image'
-                title='Visual search — coming soon'
-                className='absolute right-[52px] top-1/2 -translate-y-1/2 p-1.5 rounded-full text-gray-400 hover:text-[#006D6B] hover:bg-gray-100 transition-colors'
-              >
-                <Camera className='w-4 h-4' />
-              </button>
-            </div>
-          </div>
-
-          {/* Notifications + Wishlist */}
-          <div className='hidden sm:flex items-center gap-1 text-[#006D6B]'>
+          <div className='flex items-center gap-0.5 text-white shrink-0'>
             <Link
               href='/account/notifications'
               aria-label='Notifications'
               className='header-button relative p-2 hover:text-[#FABB02] transition-colors'
             >
-              <Bell className='w-6 h-6' />
+              <Bell className='w-5 h-5' />
             </Link>
             <Link
               href='/account/wishlist'
               aria-label='Wishlist'
               className='header-button p-2 hover:text-[#FABB02] transition-colors'
             >
-              <Heart className='w-6 h-6' />
+              <Heart className='w-5 h-5' />
             </Link>
-          </div>
-
-          <div className='text-[#006D6B]'>
             <Menu />
-          </div>
-        </div>
-
-        {/* Search — mobile */}
-        <div className='md:hidden py-2'>
-          <div className='relative w-full rounded-full border border-gray-200 focus-within:border-[#FABB02] focus-within:ring-2 focus-within:ring-[#FABB02]/40 transition-all'>
-            <Search
-              categories={categories}
-              siteName={site.name}
-              placeholder={t('Header.Search Site', { name: site.name })}
-              allLabel={t('Header.All')}
-            />
-            <button
-              type='button'
-              aria-label='Search by image'
-              title='Visual search — coming soon'
-              className='absolute right-[52px] top-1/2 -translate-y-1/2 p-1.5 rounded-full text-gray-400 hover:text-[#006D6B] hover:bg-gray-100 transition-colors'
-            >
-              <Camera className='w-4 h-4' />
-            </button>
           </div>
         </div>
       </div>
 
-      {/* Gold seam */}
-      <div
-        className='h-[3px] w-full'
-        style={{ background: 'linear-gradient(90deg, #FABB02 0%, #FFD65C 50%, #FABB02 100%)' }}
-      />
+      {/* Floating search — breaks out of the band into the page below */}
+      <div className='px-4 -mt-6 relative z-10'>
+        <div className='max-w-3xl mx-auto md:mx-0 relative rounded-full bg-card shadow-[0_8px_24px_rgba(0,0,0,0.25)] border border-border focus-within:ring-2 focus-within:ring-[#FABB02]/50 transition-all'>
+          <Search
+            categories={categories}
+            siteName={site.name}
+            placeholder={t('Header.Search Site', { name: site.name })}
+            allLabel={t('Header.All')}
+          />
+          <button
+            type='button'
+            aria-label='Search by image'
+            title='Visual search — coming soon'
+            className='absolute right-[44px] top-1/2 -translate-y-1/2 p-1.5 rounded-full text-muted-foreground hover:text-[#006D6B] hover:bg-muted transition-colors'
+          >
+            <Camera className='w-4 h-4' />
+          </button>
+        </div>
+      </div>
 
-      {/* Sub nav — unchanged, still teal */}
-      <div
-        className='flex items-center px-3 text-white shadow-[0_2px_6px_rgba(0,0,0,0.15)]'
-        style={{ background: '#00504E' }}
-      >
+      {/* Category rail — icon chips, not flat text links */}
+      <div className='flex items-center gap-2 overflow-x-auto px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'>
         <Sidebar categories={categories} />
-        <div className='flex items-center flex-wrap gap-1 overflow-hidden max-h-[42px]'>
-          {data.headerMenus.map((menu) => (
+        {data.headerMenus.map((menu) => {
+          const Icon = MENU_ICONS[menu.name] || Sparkles
+          return (
             <Link
               href={menu.href}
               key={menu.href}
-              className='header-button !p-2 relative text-white/90 hover:text-white transition-colors
-                         after:content-[""] after:absolute after:left-2 after:right-2 after:bottom-1
-                         after:h-[2px] after:bg-[#FABB02] after:scale-x-0 hover:after:scale-x-100
-                         after:origin-left after:transition-transform after:duration-200'
+              className='flex items-center gap-1.5 shrink-0 px-3 py-1.5 rounded-full text-sm
+                         text-muted-foreground border border-border hover:border-[#006D6B]
+                         hover:text-[#006D6B] transition-colors whitespace-nowrap'
             >
+              <Icon className='w-3.5 h-3.5' />
               {t('Header.' + menu.name)}
             </Link>
-          ))}
-        </div>
+          )
+        })}
       </div>
     </header>
   )

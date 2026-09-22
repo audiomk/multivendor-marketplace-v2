@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/table'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/utils'
+import { MarkPaidForm, RevertPaidButton } from './payout-actions'
 
 export const metadata: Metadata = { title: 'Vendor Payouts' }
 
@@ -35,16 +36,19 @@ export default async function AdminPayoutsPage() {
         .select('name vendorProfile')
         .lean() as any
       payouts.push({
-        orderId:         order._id.toString(),
-        date:            order.paidAt || order.createdAt,
-        vendorName:      vendor?.name || 'Unknown',
-        storeName:       vendor?.vendorProfile?.storeName || 'Unknown Store',
-        stripeAccountId: vendor?.vendorProfile?.stripeAccountId || '',
-        subtotal:        vo.subtotal || 0,
-        commission:      vo.commission || 0,
-        vendorPayout:    vo.vendorPayout || 0,
-        stripeTransferId: vo.stripeTransferId || '',
-        status:          vo.status || 'pending',
+        orderId:          order._id.toString(),
+        vendorId:         vo.vendorId.toString(),
+        date:             order.paidAt || order.createdAt,
+        vendorName:       vendor?.name || 'Unknown',
+        storeName:        vendor?.vendorProfile?.storeName || 'Unknown Store',
+        subtotal:         vo.subtotal || 0,
+        commission:       vo.commission || 0,
+        vendorPayout:     vo.vendorPayout || 0,
+        payoutStatus:     vo.payoutStatus || 'unpaid',
+        payoutMethod:     vo.payoutMethod || '',
+        payoutReference:  vo.payoutReference || vo.stripeTransferId || '',
+        payoutPaidAt:     vo.payoutPaidAt || null,
+        fulfillmentStatus: vo.status || 'pending',
       })
     }
   }
@@ -55,12 +59,20 @@ export default async function AdminPayoutsPage() {
 
   const totalCommission = payouts.reduce((s, p) => s + p.commission, 0)
   const totalPayouts    = payouts.reduce((s, p) => s + p.vendorPayout, 0)
+  const totalUnpaid     = payouts
+    .filter((p) => p.payoutStatus !== 'paid')
+    .reduce((s, p) => s + p.vendorPayout, 0)
 
   return (
     <div>
-      <h1 className='text-2xl font-bold mb-6'>Vendor Payout History</h1>
+      <h1 className='text-2xl font-bold mb-2'>Vendor Payout History</h1>
+      <p className='text-sm text-muted-foreground mb-6'>
+        Stripe Connect does not support Zimbabwe-based recipients, so almost every
+        payout here needs to be sent manually (EcoCash, bank transfer) and marked
+        paid below — a blank &quot;Payout&quot; column is money you still owe a vendor.
+      </p>
 
-      <div className='grid grid-cols-2 md:grid-cols-3 gap-4 mb-6'>
+      <div className='grid grid-cols-2 md:grid-cols-4 gap-4 mb-6'>
         <Card>
           <CardContent className='p-4 text-center'>
             <p className='text-2xl font-bold'>{payouts.length}</p>
@@ -72,7 +84,15 @@ export default async function AdminPayoutsPage() {
             <p className='text-2xl font-bold text-green-600'>
               {formatCurrency(totalPayouts)}
             </p>
-            <p className='text-sm text-muted-foreground'>Paid to Vendors</p>
+            <p className='text-sm text-muted-foreground'>Owed to Vendors (all time)</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className='p-4 text-center'>
+            <p className={`text-2xl font-bold ${totalUnpaid > 0 ? 'text-red-600' : 'text-green-600'}`}>
+              {formatCurrency(totalUnpaid)}
+            </p>
+            <p className='text-sm text-muted-foreground'>Still Unpaid</p>
           </CardContent>
         </Card>
         <Card>
@@ -99,8 +119,8 @@ export default async function AdminPayoutsPage() {
                 <TableHead>Subtotal</TableHead>
                 <TableHead>Commission</TableHead>
                 <TableHead>Payout</TableHead>
-                <TableHead>Stripe Transfer</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Payout Status</TableHead>
+                <TableHead>Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -123,20 +143,35 @@ export default async function AdminPayoutsPage() {
                   <TableCell className='font-bold text-green-600'>
                     {formatCurrency(p.vendorPayout)}
                   </TableCell>
-                  <TableCell className='text-xs font-mono'>
-                    {p.stripeTransferId
-                      ? p.stripeTransferId.slice(0, 20) + '...'
-                      : <span className='text-muted-foreground'>Manual</span>
-                    }
+                  <TableCell>
+                    {p.payoutStatus === 'paid' ? (
+                      <div className='space-y-1'>
+                        <span className='text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 inline-block'>
+                          Paid{p.payoutMethod ? ` — ${p.payoutMethod}` : ''}
+                        </span>
+                        {p.payoutReference && (
+                          <p className='text-[11px] font-mono text-muted-foreground truncate max-w-[160px]'>
+                            {p.payoutReference}
+                          </p>
+                        )}
+                        {p.payoutPaidAt && (
+                          <p className='text-[11px] text-muted-foreground'>
+                            {new Date(p.payoutPaidAt).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <span className='text-xs px-2 py-1 rounded-full bg-red-100 text-red-700'>
+                        Unpaid
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell>
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      p.status === 'delivered'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-yellow-100 text-yellow-700'
-                    }`}>
-                      {p.status}
-                    </span>
+                    {p.payoutStatus === 'paid' ? (
+                      <RevertPaidButton orderId={p.orderId} vendorId={p.vendorId} />
+                    ) : (
+                      <MarkPaidForm orderId={p.orderId} vendorId={p.vendorId} />
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

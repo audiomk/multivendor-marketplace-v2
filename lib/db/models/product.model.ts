@@ -5,6 +5,9 @@ export interface IProduct extends Document, IProductInput {
   _id: string
   createdAt: Date
   updatedAt: Date
+  // Denormalized from the Boost collection — see lib/db/models/boost.model.ts
+  boostTier?: 'featured' | 'deal' | 'spotlight' | null
+  boostedUntil?: Date
 }
 
 const productSchema = new Schema<IProduct>(
@@ -90,6 +93,11 @@ const productSchema = new Schema<IProduct>(
         default: [],
       },
     ],
+    // Denormalized from the Boost collection (source of truth) so homepage
+    // queries don't need a join — always re-check boostedUntil > now rather
+    // than trusting boostTier alone, since expiry isn't swept by a cron.
+    boostTier:    { type: String, enum: ['featured', 'deal', 'spotlight', null], default: null },
+    boostedUntil: { type: Date },
   },
   {
     timestamps: true,

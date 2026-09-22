@@ -16,16 +16,43 @@ import {
 import WebPage from './models/web-page.model'
 import Setting from './models/setting.model'
 import { OrderItem, IOrderInput, ShippingAddress } from '@/types'
+import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 
 loadEnvConfig(cwd())
+
+// This script WIPES Users, Products, Reviews, Orders, Settings and WebPages
+// before reseeding demo data. MONGODB_URI is not guaranteed to be a local/dev
+// database, so require an explicit, deliberate confirmation before running —
+// this prevents an accidental `npm run seed` from destroying real user data.
+const isLocalDb = (process.env.MONGODB_URI || '').startsWith('mongodb://localhost')
+if (!isLocalDb && process.env.SEED_CONFIRM !== 'yes') {
+  console.error(
+    `\nRefusing to seed: MONGODB_URI does not look like a local database.\n` +
+      `This will DELETE all existing users, products, orders and reviews.\n\n` +
+      `If you really want to wipe and reseed this database, run:\n` +
+      `  SEED_CONFIRM=yes npm run seed\n`
+  )
+  process.exit(1)
+}
 
 const main = async () => {
   try {
     const { users, products, reviews, webPages, settings } = data
+
+    // Never seed a real, guessable admin password — generate one at seed
+    // time and print it once instead of using the hardcoded placeholder.
+    const generatedAdminPassword = crypto.randomBytes(12).toString('base64url')
+    const seededUsers = users.map((u) =>
+      u.email === 'admin@example.com'
+        ? { ...u, password: bcrypt.hashSync(generatedAdminPassword, 10) }
+        : u
+    )
+
     await connectToDatabase(process.env.MONGODB_URI)
 
     await User.deleteMany()
-    const createdUser = await User.insertMany(users)
+    const createdUser = await User.insertMany(seededUsers)
 
     await Setting.deleteMany()
     const createdSetting = await Setting.insertMany(settings)
@@ -120,6 +147,10 @@ const createdProducts = await Product.insertMany(fetchedProducts)
       createdSetting,
       message: 'Seeded database successfully',
     })
+    console.log(
+      `\nAdmin login:\n  email:    admin@example.com\n  password: ${generatedAdminPassword}\n` +
+        `(shown once — save it now; it is not stored anywhere in plaintext)\n`
+    )
     process.exit(0)
   } catch (error) {
     console.error(error)

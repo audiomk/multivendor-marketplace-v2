@@ -4,6 +4,7 @@ import { connectToDatabase } from '@/lib/db'
 import User from '@/lib/db/models/user.model'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import StripeConnectButton from './stripe-connect-button'
+import WhatsAppForm from './whatsapp-form'
 
 export const metadata: Metadata = { title: 'Vendor Settings' }
 
@@ -58,6 +59,19 @@ export default async function VendorSettingsPage({
               {profile?.isApproved ? '✓ Approved' : '⏳ Pending'}
             </span>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* WhatsApp order alerts */}
+      <Card className='mb-6'>
+        <CardHeader>
+          <CardTitle>WhatsApp Order Alerts</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <WhatsAppForm
+            currentNumber={profile?.whatsappNumber || ''}
+            isVerified={!!profile?.whatsappVerified}
+          />
         </CardContent>
       </Card>
 

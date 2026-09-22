@@ -1,6 +1,6 @@
 import * as React from 'react'
 import Link from 'next/link'
-import { X, ChevronRight, UserCircle, MenuIcon } from 'lucide-react'
+import { X, ChevronRight, UserCircle, LayoutGrid } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SignOut } from '@/lib/actions/user.actions'
 import {
@@ -28,14 +28,21 @@ export default async function Sidebar({
   const t = await getTranslations()
   return (
     <Drawer direction={getDirection(locale) === 'rtl' ? 'right' : 'left'}>
-      <DrawerTrigger className='header-button flex items-center !p-2  '>
-        <MenuIcon className='h-5 w-5 mr-1' />
-        {t('Header.All')}
+      <DrawerTrigger
+        className='flex items-center gap-1.5 shrink-0 px-3 py-1.5 rounded-full text-sm
+                   font-medium text-white border transition-colors whitespace-nowrap'
+        style={{ background: '#006D6B', borderColor: '#006D6B' }}
+      >
+        <LayoutGrid className='h-3.5 w-3.5' />
+        {t('Header.Categories')}
       </DrawerTrigger>
       <DrawerContent className='w-[350px] mt-0 top-0'>
         <div className='flex flex-col h-full'>
           {/* User Sign In Section */}
-          <div className='dark bg-gray-800 text-foreground flex items-center justify-between  '>
+          <div
+            className='text-white flex items-center justify-between'
+            style={{ background: '#006D6B' }}
+          >
             <DrawerHeader>
               <DrawerTitle className='flex items-center'>
                 <UserCircle className='h-6 w-6 mr-2' />
@@ -71,7 +78,7 @@ export default async function Sidebar({
           <div className='flex-1 overflow-y-auto'>
             <div className='p-4 border-b'>
               <h2 className='text-lg font-semibold'>
-                {t('Header.Shop By Department')}
+                {t('Header.Browse categories')}
               </h2>
             </div>
             <nav className='flex flex-col'>

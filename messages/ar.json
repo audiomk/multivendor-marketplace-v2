@@ -3,6 +3,8 @@
     "Hello": "مرحباً",
     "sign in": "تسجيل الدخول",
     "All": "الكل",
+    "Categories": "الفئات",
+    "Browse categories": "تصفح الفئات",
     "Gold": "ذهبي",
     "Green": "أخضر",
     "Red": "أحمر",
@@ -250,6 +252,9 @@
     "Status": "الحالة",
     "Actions": "الإجراءات",
     "Details": "التفاصيل",
-    "Vendors": "البائعين"
+    "Vendors": "البائعين",
+    "Payouts": "المدفوعات",
+    "Boosts": "التعزيزات",
+    "Verifications": "التحقّقات"
   }
 }

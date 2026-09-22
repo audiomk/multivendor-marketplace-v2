@@ -6,6 +6,7 @@ import Product from '@/lib/db/models/product.model'
 import User from '@/lib/db/models/user.model'
 import { stripe } from '@/lib/stripe'
 import { formatError } from '../utils'
+import { sendWhatsAppOrderNotification, isWhatsAppApiConfigured } from '@/lib/whatsapp'
 
 // Call this after any successful payment
 export async function splitOrderByVendor(orderId: string) {
@@ -69,8 +70,15 @@ export async function splitOrderByVendor(orderId: string) {
       const formattedPayout = Math.round(vendorPayout * 100) / 100
 
       let stripeTransferId = ''
+      let payoutStatus: 'unpaid' | 'paid' = 'unpaid'
+      let payoutMethod = ''
+      let payoutPaidAt: Date | undefined
 
-      // Only transfer if vendor has Stripe connected
+      // Only transfer if vendor has Stripe connected. NOTE: Stripe Connect
+      // does not support Zimbabwe as a recipient country, so this will
+      // realistically never fire for local vendors — payoutStatus stays
+      // 'unpaid' and the admin payouts page is where it gets marked paid
+      // manually (EcoCash, bank transfer, etc).
       if (
         vendor.vendorProfile?.stripeAccountId &&
         process.env.STRIPE_SECRET_KEY?.startsWith('sk_live')
@@ -83,6 +91,9 @@ export async function splitOrderByVendor(orderId: string) {
             metadata: { orderId, vendorId },
           })
           stripeTransferId = transfer.id
+          payoutStatus = 'paid'
+          payoutMethod = 'stripe'
+          payoutPaidAt = new Date()
         } catch (stripeErr) {
           console.error('Stripe transfer failed:', stripeErr)
         }
@@ -96,6 +107,9 @@ export async function splitOrderByVendor(orderId: string) {
         vendorPayout: formattedPayout,
         status: 'pending',
         stripeTransferId,
+        payoutStatus,
+        payoutMethod,
+        payoutPaidAt,
       })
 
       // Notify vendor via email inside the loop
@@ -110,6 +124,26 @@ export async function splitOrderByVendor(orderId: string) {
           })
         } catch (emailErr) {
           console.error('Vendor notification email failed:', emailErr)
+        }
+      }
+
+      // Automatic WhatsApp push — only fires once WHATSAPP_* env vars are
+      // set up (see lib/whatsapp.ts). Until then this is a no-op; the free
+      // wa.me link on the admin order page is the working notification path.
+      if (
+        isWhatsAppApiConfigured() &&
+        vendor.vendorProfile?.whatsappVerified &&
+        vendor.vendorProfile?.whatsappNumber
+      ) {
+        try {
+          await sendWhatsAppOrderNotification({
+            toPhone: vendor.vendorProfile.whatsappNumber,
+            storeName: vendor.vendorProfile?.storeName || vendor.name,
+            orderShortId: orderId.toString().slice(-8).toUpperCase(),
+            vendorPayout: formattedPayout,
+          })
+        } catch (waErr) {
+          console.error('Vendor WhatsApp notification failed:', waErr)
         }
       }
     }

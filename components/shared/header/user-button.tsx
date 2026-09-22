@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { SignOut } from '@/lib/actions/user.actions'
 import { cn } from '@/lib/utils'
-import { ChevronDownIcon } from 'lucide-react'
+import { ChevronDownIcon, UserRound } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import Link from 'next/link'
 
@@ -22,20 +22,22 @@ export default async function UserButton() {
 
   const isAdmin  = role === 'Admin' || role === 'admin'
   const isVendor = role === 'vendor' || (isAdmin && hasVendorProfile)
+  const firstName = session?.user?.name?.split(' ')[0]
 
   return (
     <div className='flex gap-2 items-center'>
       <DropdownMenu>
-        <DropdownMenuTrigger className='header-button' asChild>
-          <div className='flex items-center'>
-            <div className='flex flex-col text-xs text-left'>
-              <span>
-                {t('Header.Hello')},{' '}
-                {session ? session.user.name : t('Header.sign in')}
-              </span>
-              <span className='font-bold'>{t('Header.Account & Orders')}</span>
-            </div>
-            <ChevronDownIcon />
+        <DropdownMenuTrigger
+          className='header-button flex items-center gap-1.5 !p-2 rounded-full
+                     border border-white/25 hover:border-white/50 transition-colors'
+          asChild
+        >
+          <div className='flex items-center gap-1.5'>
+            <UserRound className='h-4 w-4' />
+            <span className='text-sm font-medium'>
+              {firstName || t('Header.Sign in')}
+            </span>
+            <ChevronDownIcon className='h-3.5 w-3.5' />
           </div>
         </DropdownMenuTrigger>
         {session ? (

@@ -46,6 +46,19 @@ const orderSchema = new Schema<IOrder>(
       default: 'pending',
     },
     stripeTransferId: { type: String, default: '' },
+    // Separate from fulfillment `status` above — Stripe Connect does not
+    // support Zimbabwe-based recipients, so most vendors here will never
+    // get a stripeTransferId and must be paid out manually. This is the
+    // actual "has this vendor been paid their cut" record.
+    payoutStatus: {
+      type: String,
+      enum: ['unpaid', 'paid'],
+      default: 'unpaid',
+    },
+    payoutMethod:    { type: String, default: '' }, // 'stripe' | 'ecocash' | 'bank_transfer' | 'other'
+    payoutReference: { type: String, default: '' },
+    payoutNotes:     { type: String, default: '' },
+    payoutPaidAt:    { type: Date },
   },
 ],
     shippingAddress: {

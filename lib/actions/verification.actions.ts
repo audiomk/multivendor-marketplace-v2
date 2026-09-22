@@ -5,6 +5,7 @@ import User from '@/lib/db/models/user.model'
 import { auth } from '@/auth'
 import { revalidatePath } from 'next/cache'
 import { formatError } from '../utils'
+import { checkAdmin } from './auth-guards'
 
 async function requireUser() {
   const session = await auth()
@@ -150,6 +151,7 @@ export async function adminReviewVerification({
   rejectReason?: string
 }) {
   try {
+    await checkAdmin()
     await connectToDatabase()
     const update: any = {
       $set: {

@@ -26,6 +26,12 @@ const links = [
   { title: 'Vendors',
     href: '/admin/vendors'
   },
+  { title: 'Payouts',
+    href: '/admin/vendors/payouts'
+  },
+  { title: 'Boosts',
+    href: '/admin/boosts'
+  },
   {
     title: 'Pages',
     href: '/admin/web-pages',

@@ -3,6 +3,8 @@
     "Hello": "Sawubona",
     "sign in": "ngena",
     "All": "Konke",
+    "Categories": "Izigaba",
+    "Browse categories": "Bheka Izigaba",
     "Gold": "Igolide",
     "Green": "Okuluhlaza",
     "Red": "Okubomvu",
@@ -250,6 +252,9 @@
     "Status": "Isimo",
     "Actions": "Izenzo",
     "Details": "Imininingwane",
-    "Vendors": "Abathengisi"
+    "Vendors": "Abathengisi",
+    "Payouts": "Izinkokhelo",
+    "Boosts": "Ukukhushulwa",
+    "Verifications": "Ukuqinisekiswa"
   }
 }

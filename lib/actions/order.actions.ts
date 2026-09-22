@@ -15,6 +15,7 @@ import Product from '../db/models/product.model'
 import User from '../db/models/user.model'
 import mongoose from 'mongoose'
 import { getSetting } from './setting.actions'
+import { checkAdmin } from './auth-guards'
 
 // CREATE
 export const createOrder = async (clientSideCart: Cart) => {
@@ -65,6 +66,7 @@ export const createOrderFromCart = async (
 
 export async function updateOrderToPaid(orderId: string) {
   try {
+    await checkAdmin()
     await connectToDatabase()
     const order = await Order.findById(orderId).populate<{
       user: { email: string; name: string }
@@ -123,6 +125,7 @@ const updateProductStock = async (orderId: string) => {
 }
 export async function deliverOrder(orderId: string) {
   try {
+    await checkAdmin()
     await connectToDatabase()
     const order = await Order.findById(orderId).populate<{
       user: { email: string; name: string }
@@ -143,6 +146,7 @@ export async function deliverOrder(orderId: string) {
 // DELETE
 export async function deleteOrder(id: string) {
   try {
+    await checkAdmin()
     await connectToDatabase()
     const res = await Order.findByIdAndDelete(id)
     if (!res) throw new Error('Order not found')
@@ -165,6 +169,7 @@ export async function getAllOrders({
   limit?: number
   page: number
 }) {
+  await checkAdmin()
   const {
     common: { pageSize },
   } = await getSetting()
@@ -215,6 +220,7 @@ export async function getMyOrders({
 export async function getOrderById(orderId: string): Promise<IOrder> {
   await connectToDatabase()
   const order = await Order.findById(orderId)
+    .populate('vendorOrders.vendorId', 'name vendorProfile')
   return JSON.parse(JSON.stringify(order))
 }
 

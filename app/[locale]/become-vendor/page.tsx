@@ -25,7 +25,7 @@ export default function BecomeVendorPage() {
       return
     }
     await update()
-    window.location.href = '/vendor/pending'
+    window.location.href = '/vendor/overview'
   }
 
   return (

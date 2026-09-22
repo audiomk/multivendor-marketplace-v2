@@ -31,8 +31,8 @@ export default function RefreshButton() {
   }
 
   return (
-    <Button onClick={handleRefresh} variant='outline' disabled={checking}>
-      {checking ? 'Checking...' : 'Check Approval Status'}
+    <Button onClick={handleRefresh} disabled={checking}>
+      {checking ? 'Checking...' : 'Check Status'}
     </Button>
   )
 }

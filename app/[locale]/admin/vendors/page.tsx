@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import Link from 'next/link'
 import { auth } from '@/auth'
 import { getAllVendors, approveVendor, rejectVendor, suspendVendor } from '@/lib/actions/admin.actions'
 import {
@@ -6,6 +7,7 @@ import {
   TableHead, TableHeader, TableRow,
 } from '@/components/ui/table'
 import VendorActions from './vendor-actions'
+import WhatsAppVerifyButton from './whatsapp-verify-button'
 
 export const metadata: Metadata = { title: 'Manage Vendors' }
 
@@ -18,19 +20,26 @@ if (role !== 'Admin' && role !== 'admin')
   const result = await getAllVendors()
   if (!result.success) return <p className='text-red-500'>{result.message}</p>
 
-  const vendors = result.data!
-  const pending  = vendors.filter((v: any) => !v.vendorProfile?.isApproved)
-  const approved = vendors.filter((v: any) =>  v.vendorProfile?.isApproved)
+  const vendors   = result.data!
+  // Vendors are approved to sell the instant they apply — isApproved only
+  // goes false when an admin suspends the account.
+  const suspended = vendors.filter((v: any) => !v.vendorProfile?.isApproved)
+  const active    = vendors.filter((v: any) =>  v.vendorProfile?.isApproved)
 
   return (
     <div>
       <h1 className='text-2xl font-bold mb-6'>Vendor Management</h1>
+      <p className='text-sm text-muted-foreground mb-6'>
+        New vendors can sell immediately — no manual approval needed. Use{' '}
+        <Link href='/admin/verifications' className='underline'>Verifications</Link>{' '}
+        to review ID/tax documents and grant the trusted-seller badge.
+      </p>
 
-      {/* Pending */}
-      {pending.length > 0 && (
+      {/* Suspended */}
+      {suspended.length > 0 && (
         <div className='mb-8'>
-          <h2 className='text-lg font-semibold mb-3 text-yellow-600'>
-            ⏳ Pending Approval ({pending.length})
+          <h2 className='text-lg font-semibold mb-3 text-red-600'>
+            🚫 Suspended ({suspended.length})
           </h2>
           <div className='rounded-md border'>
             <Table>
@@ -42,7 +51,7 @@ if (role !== 'Admin' && role !== 'admin')
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {pending.map((v: any) => (
+                {suspended.map((v: any) => (
                   <TableRow key={v._id}>
                     <TableCell>
                       <p className='font-medium'>{v.name}</p>
@@ -55,7 +64,7 @@ if (role !== 'Admin' && role !== 'admin')
                       </p>
                     </TableCell>
                     <TableCell>
-                      <VendorActions id={v._id} type='pending' />
+                      <VendorActions id={v._id} type='suspended' />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -65,10 +74,10 @@ if (role !== 'Admin' && role !== 'admin')
         </div>
       )}
 
-      {/* Approved */}
+      {/* Active */}
       <div>
         <h2 className='text-lg font-semibold mb-3 text-green-600'>
-          ✓ Approved Vendors ({approved.length})
+          ✓ Active Vendors ({active.length})
         </h2>
         <div className='rounded-md border'>
           <Table>
@@ -76,13 +85,15 @@ if (role !== 'Admin' && role !== 'admin')
               <TableRow>
                 <TableHead>Vendor</TableHead>
                 <TableHead>Store</TableHead>
+                <TableHead>Verified</TableHead>
+                <TableHead>WhatsApp</TableHead>
                 <TableHead>Commission</TableHead>
                 <TableHead>Stripe</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {approved.map((v: any) => (
+              {active.map((v: any) => (
                 <TableRow key={v._id}>
                   <TableCell>
                     <p className='font-medium'>{v.name}</p>
@@ -93,6 +104,35 @@ if (role !== 'Admin' && role !== 'admin')
                     <p className='text-xs text-muted-foreground'>
                       /{v.vendorProfile?.storeSlug}
                     </p>
+                  </TableCell>
+                  <TableCell>
+                    {v.verification?.isVerified ? (
+                      <span className='text-xs text-green-600 font-medium'>
+                        ✓ Verified
+                      </span>
+                    ) : (
+                      <span className='text-xs text-muted-foreground'>
+                        Not verified
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {v.vendorProfile?.whatsappNumber ? (
+                      <div className='space-y-1'>
+                        <p className='text-xs font-mono'>{v.vendorProfile.whatsappNumber}</p>
+                        {v.vendorProfile.whatsappVerified ? (
+                          <span className='text-xs text-green-600 font-medium block'>✓ Verified</span>
+                        ) : (
+                          <span className='text-xs text-yellow-600 font-medium block'>Pending</span>
+                        )}
+                        <WhatsAppVerifyButton
+                          vendorId={v._id}
+                          verified={!!v.vendorProfile.whatsappVerified}
+                        />
+                      </div>
+                    ) : (
+                      <span className='text-xs text-muted-foreground'>Not provided</span>
+                    )}
                   </TableCell>
                   <TableCell>{v.vendorProfile?.commission}%</TableCell>
                   <TableCell>
@@ -107,7 +147,7 @@ if (role !== 'Admin' && role !== 'admin')
                     )}
                   </TableCell>
                   <TableCell>
-                    <VendorActions id={v._id} type='approved' />
+                    <VendorActions id={v._id} type='active' />
                   </TableCell>
                 </TableRow>
               ))}

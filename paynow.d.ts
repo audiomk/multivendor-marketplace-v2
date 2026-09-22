@@ -8,7 +8,10 @@ declare module 'paynow' {
     createPayment(reference: string, authEmail: string): Payment;
     send(payment: Payment): Promise<InitResponse>;
     sendMobile(payment: Payment, phone: string, method: string): Promise<InitResponse>;
-    pollTransactionStatus(url: string): Promise<StatusResponse>;
+    // NOTE: the installed SDK's pollTransaction() resolves an InitResponse
+    // (status lowercased, e.g. "paid"/"created"/"cancelled") — there is no
+    // separate StatusResponse-returning method and no `.paid()` helper.
+    pollTransaction(url: string): Promise<InitResponse>;
   }
 
   export class Payment {
@@ -18,18 +21,11 @@ declare module 'paynow' {
 
   export interface InitResponse {
     success: boolean;
-    hasRedirectUrl: boolean;
+    hasRedirect: boolean;
     redirectUrl?: string;
     error?: string;
     pollUrl?: string;
-    status?: string;
-  }
-
-  export interface StatusResponse {
-    reference: string;
-    amount: string;
+    instructions?: string;
     status: string;
-    pollUrl: string;
-    paynowReference: string;
   }
 }
