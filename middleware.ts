@@ -13,7 +13,7 @@ const intlMiddleware = createMiddleware(routing)
 // themselves — e.g. "/account" -> "ount", "/admin" -> "in", "/vendor" ->
 // "dor" — none of which match the startsWith() checks below, silently
 // disabling every route guard in this file for default-locale requests.
-function stripLocalePrefix(pathname: string): string {
+export function stripLocalePrefix(pathname: string): string {
   const [, first, ...rest] = pathname.split('/')
   if ((routing.locales as readonly string[]).includes(first)) {
     return rest.length > 0 ? '/' + rest.join('/') : '/'

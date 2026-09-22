@@ -54,6 +54,12 @@ NEXT_PUBLIC_ZIMSWITCH_ENV=sandbox
 WHATSAPP_ACCESS_TOKEN=
 WHATSAPP_PHONE_NUMBER_ID=
 
+# ERROR TRACKING — optional. Sign up at sentry.io, create a Next.js
+# project, and set both DSNs below (same value, one for server/edge, one
+# exposed to the browser). Without these, errors just go to the console.
+SENTRY_DSN=
+NEXT_PUBLIC_SENTRY_DSN=
+
 # SEEDING — required to run `npm run seed` against any non-localhost
 # database, as a safeguard against accidentally wiping real data.
 # SEED_CONFIRM=yes

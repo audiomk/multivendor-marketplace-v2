@@ -1,3 +1,5 @@
+import SentryClientInit from '@/components/shared/sentry-client-init'
+
 export default function RootLayout({
   children,
 }: {
@@ -6,6 +8,7 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning>
       <body suppressHydrationWarning>
+        <SentryClientInit />
         {children}
       </body>
     </html>
