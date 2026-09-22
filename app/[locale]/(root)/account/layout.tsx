@@ -4,6 +4,8 @@ import Link from 'next/link'
 // 1. Defined the navigation items (including your new link)
 const navItems = [
   { title: 'Verify Identity', href: '/account/verification' },
+  { title: 'Wishlist', href: '/account/wishlist' },
+  { title: 'Your Reports', href: '/account/disputes' },
   // You can easily add more links here in the future
 ]
 

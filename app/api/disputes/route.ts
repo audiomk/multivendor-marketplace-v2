@@ -12,6 +12,9 @@ export async function POST(req: Request) {
     }
 
     const { orderId, vendorId, reason, details } = await req.json()
+    if (!reason?.trim() || !details?.trim()) {
+      return NextResponse.json({ error: 'Reason and details are required' }, { status: 400 })
+    }
 
     await connectToDatabase()
 
@@ -22,6 +25,13 @@ export async function POST(req: Request) {
     })
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+    }
+    // Verify vendorId is actually part of this order, not an arbitrary id
+    const vendorInOrder = (order.vendorOrders || []).some(
+      (vo: any) => vo.vendorId?.toString() === vendorId
+    )
+    if (!vendorInOrder) {
+      return NextResponse.json({ error: 'That vendor is not part of this order' }, { status: 400 })
     }
 
     const dispute = await Dispute.create({

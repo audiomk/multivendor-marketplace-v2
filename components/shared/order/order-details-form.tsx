@@ -20,6 +20,7 @@ import ProductPrice from '../product/product-price'
 import ActionButton from '../action-button'
 import { deliverOrder, updateOrderToPaid } from '@/lib/actions/order.actions'
 import { buildWhatsAppLink, buildOrderNotificationMessage } from '@/lib/whatsapp'
+import DisputeForm from './dispute-form'
 
 export default function OrderDetailsForm({
   order,
@@ -85,6 +86,22 @@ export default function OrderDetailsForm({
             )}
           </CardContent>
         </Card>
+
+        {!isAdmin && isPaid && (order as any).vendorOrders?.length > 0 && (
+          <Card>
+            <CardContent className='p-4 gap-4'>
+              <h2 className='text-xl pb-4'>Having an issue?</h2>
+              <DisputeForm
+                orderId={order._id}
+                vendors={(order as any).vendorOrders.map((vo: any) => ({
+                  id: vo.vendorId?._id || vo.vendorId,
+                  storeName: vo.vendorId?.vendorProfile?.storeName || vo.vendorId?.name || 'Vendor',
+                }))}
+              />
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardContent className='p-4   gap-4'>
             <h2 className='text-xl pb-4'>Order Items</h2>

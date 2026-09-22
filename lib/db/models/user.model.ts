@@ -45,6 +45,7 @@ export interface IUser {
   verification?: IVerification | null
   resetToken?: string | null           // <-- Added this
   resetTokenExpires?: Date | null      // <-- Added this
+  wishlist?: string[]
 }
 
 const vendorProfileSchema = new Schema<IVendorProfile>({
@@ -93,6 +94,7 @@ const userSchema = new Schema<IUser>(
     verification:  { type: verificationSchema,  default: null },
     resetToken:        { type: String, default: null },
     resetTokenExpires: { type: Date, default: null },
+    wishlist: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   },
   { timestamps: true }
 )

@@ -32,6 +32,9 @@ const links = [
   { title: 'Boosts',
     href: '/admin/boosts'
   },
+  { title: 'Disputes',
+    href: '/admin/disputes'
+  },
   {
     title: 'Pages',
     href: '/admin/web-pages',

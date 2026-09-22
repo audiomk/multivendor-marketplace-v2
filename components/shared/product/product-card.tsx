@@ -8,6 +8,7 @@ import { formatNumber, generateId, round2 } from '@/lib/utils'
 import ProductPrice from './product-price'
 import ImageHover from './image-hover'
 import AddToCart from './add-to-cart'
+import WishlistButton from './wishlist-button'
 // Added BadgeCheck to the imports
 import { Store, BadgeCheck } from 'lucide-react'
 
@@ -16,18 +17,22 @@ const ProductCard = ({
   hideBorder = false,
   hideDetails = false,
   hideAddToCart = false,
+  initialInWishlist = false,
 }: {
   product: IProduct
   hideDetails?: boolean
   hideBorder?: boolean
   hideAddToCart?: boolean
+  initialInWishlist?: boolean
 }) => {
   const vendorData  = (product as any).vendorId
 const vendor      = vendorData?.vendorProfile
 const isVerified  = vendorData?.verification?.isVerified || false
 
   const ProductImage = () => (
-    <Link href={`/product/${product.slug}`}>
+    <div className='relative'>
+      <WishlistButton productId={product._id} initialInWishlist={initialInWishlist} />
+      <Link href={`/product/${product.slug}`}>
       <div className='relative h-52'>
         {product.images.length > 1 ? (
           <ImageHover
@@ -46,7 +51,8 @@ const isVerified  = vendorData?.verification?.isVerified || false
           />
         )}
       </div>
-    </Link>
+      </Link>
+    </div>
   )
 
   const ProductDetails = () => (
