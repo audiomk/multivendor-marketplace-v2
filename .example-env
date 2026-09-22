@@ -1,22 +1,23 @@
 
-NEXT_PUBLIC_APP_NAME=Amazona
-NEXT_PUBLIC_APP_DESCRIPTION=An Amazon clone built with Next.js, MongoDB, Shadcn
+NEXT_PUBLIC_APP_NAME=Indaba Cart
+NEXT_PUBLIC_APP_DESCRIPTION=A multivendor marketplace for Zimbabwe, built with Next.js, MongoDB, Shadcn
 NEXT_PUBLIC_SERVER_URL=http://localhost:3000
 
 # Database
 MONGODB_URI=mongodb://localhost/nextjs-amazona
- 
 
 # $ npx auth secret
 AUTH_SECRET=
-AUTH_GOOGLE_ID=
-AUTH_GOOGLE_SECRET=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
 
 RESEND_API_KEY=
 SENDER_EMAIL=
+SENDER_NAME=
 
 # UPLOADTHING
 UPLOADTHING_TOKEN=
+
 # PAYPAL
 PAYPAL_API_URL=
 PAYPAL_CLIENT_ID=
@@ -26,3 +27,33 @@ PAYPAL_APP_SECRET=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
+
+# PAYNOW (Zimbabwe) — get keys at paynow.co.zw
+PAYNOW_INTEGRATION_ID=
+PAYNOW_INTEGRATION_KEY=
+
+# ECOCASH — manual reference flow (no keys needed) plus optional direct
+# API automation once you have EcoCash Online Merchant approval:
+# see lib/ecocash-api.ts
+NEXT_PUBLIC_ECOCASH_NUMBER=
+NEXT_PUBLIC_ECOCASH_NAME=
+ECOCASH_API_KEY=
+ECOCASH_MERCHANT_CODE=
+ECOCASH_ENV=sandbox
+ECOCASH_WEBHOOK_SECRET=
+
+# ZIMSWITCH — requires bank merchant sign-on first; see lib/zimswitch.ts
+ZIMSWITCH_ENTITY_ID=
+ZIMSWITCH_ACCESS_TOKEN=
+ZIMSWITCH_ENV=sandbox
+NEXT_PUBLIC_ZIMSWITCH_ENV=sandbox
+
+# WHATSAPP BUSINESS CLOUD API — optional, for automatic vendor order
+# alerts; see lib/whatsapp.ts. Without these, the free wa.me link on the
+# admin order page still works.
+WHATSAPP_ACCESS_TOKEN=
+WHATSAPP_PHONE_NUMBER_ID=
+
+# SEEDING — required to run `npm run seed` against any non-localhost
+# database, as a safeguard against accidentally wiping real data.
+# SEED_CONFIRM=yes

@@ -4,12 +4,28 @@ import User from '@/lib/db/models/user.model'
 import crypto from 'crypto'
 import { Resend } from 'resend'
 import { SENDER_EMAIL, SENDER_NAME } from '@/lib/constants'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: Request) {
   try {
     const { email } = await req.json()
+
+    // 3 reset requests per email per 15 minutes — stops someone from
+    // email-bombing a real user's inbox with reset links.
+    const { allowed } = checkRateLimit(`forgot-password:${email}`, 3, 15 * 60 * 1000)
+    if (!allowed) {
+      // Still return success — don't reveal whether the rate limit or the
+      // "always success" enumeration guard below is what fired.
+      return NextResponse.json({ success: true })
+    }
+    // Also cap by IP so one client can't spam many different emails.
+    const ipCheck = checkRateLimit(`forgot-password-ip:${getClientIp(req)}`, 10, 15 * 60 * 1000)
+    if (!ipCheck.allowed) {
+      return NextResponse.json({ success: true })
+    }
+
     await connectToDatabase()
 
     const user = await User.findOne({ email })

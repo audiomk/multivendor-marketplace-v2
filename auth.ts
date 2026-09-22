@@ -7,6 +7,7 @@ import client from './lib/db/client'
 import User from './lib/db/models/user.model'
 import NextAuth, { type DefaultSession } from 'next-auth'
 import authConfig from './auth.config'
+import { checkRateLimit } from './lib/rate-limit'
 
 declare module 'next-auth' {
   interface Session {
@@ -46,9 +47,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { type: 'email' },
         password: { type: 'password' },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         await connectToDatabase()
         if (credentials == null) return null
+
+        // Limit brute-force attempts per email+IP — doesn't block a
+        // distributed attack, but stops the common case of someone
+        // scripting password guesses against one account.
+        const ip = request?.headers?.get('x-forwarded-for')?.split(',')[0].trim()
+          || request?.headers?.get('x-real-ip')
+          || 'unknown'
+        const { allowed } = checkRateLimit(
+          `signin:${credentials.email}:${ip}`,
+          10,
+          15 * 60 * 1000
+        )
+        if (!allowed) return null
 
         const user = await User.findOne({ email: credentials.email })
         if (user && user.password) {
@@ -58,7 +72,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           )
           if (isMatch) {
             return {
-              id:            user._id,
+              id:            user._id.toString(),
               name:          user.name,
               email:         user.email,
               role:          user.role,

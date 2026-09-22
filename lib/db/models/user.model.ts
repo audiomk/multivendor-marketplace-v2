@@ -35,6 +35,7 @@ export interface IVerification {
 
 // 1. Updated interface containing the new password-reset properties
 export interface IUser {
+  _id: string
   email: string
   name: string
   role: 'User' | 'vendor' | 'admin' | 'Admin'

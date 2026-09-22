@@ -3,6 +3,7 @@ import { auth } from '@/auth'
 import { connectToDatabase } from '@/lib/db'
 import Order from '@/lib/db/models/order.model'
 import { requestEcoCashPayment, isEcoCashDirectConfigured } from '@/lib/ecocash-api'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 // Pushes a real-time EcoCash PIN prompt for this order. Falls back
 // gracefully with a clear message when not configured — the buyer should
@@ -12,6 +13,11 @@ export async function POST(req: Request) {
     const session = await auth()
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { allowed } = checkRateLimit(`ecocash-charge:${session.user.id}`, 5, 5 * 60 * 1000)
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many attempts — wait a few minutes and try again' }, { status: 429 })
     }
 
     if (!isEcoCashDirectConfigured()) {

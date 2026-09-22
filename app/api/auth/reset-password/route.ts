@@ -2,9 +2,22 @@ import { NextResponse } from 'next/server'
 import { connectToDatabase } from '@/lib/db'
 import User from '@/lib/db/models/user.model'
 import bcrypt from 'bcryptjs'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
 
 export async function POST(req: Request) {
   try {
+    const { allowed, retryAfterSeconds } = checkRateLimit(
+      `reset-password:${getClientIp(req)}`,
+      10,
+      15 * 60 * 1000
+    )
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Too many attempts — try again later' },
+        { status: 429, headers: { 'Retry-After': String(retryAfterSeconds) } }
+      )
+    }
+
     const { token, password } = await req.json()
     await connectToDatabase()
 
@@ -21,7 +34,7 @@ export async function POST(req: Request) {
     }
 
     await User.findByIdAndUpdate(user._id, {
-      password:          bcrypt.hashSync(password, 5),
+      password:          bcrypt.hashSync(password, 10),
       resetToken:        null,
       resetTokenExpires: null,
     })

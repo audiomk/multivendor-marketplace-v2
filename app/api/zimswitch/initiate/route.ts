@@ -3,12 +3,18 @@ import { auth } from '@/auth'
 import { connectToDatabase } from '@/lib/db'
 import Order from '@/lib/db/models/order.model'
 import { createZimswitchCheckout, isZimswitchConfigured } from '@/lib/zimswitch'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 export async function POST(req: Request) {
   try {
     const session = await auth()
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { allowed } = checkRateLimit(`zimswitch-initiate:${session.user.id}`, 5, 5 * 60 * 1000)
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many attempts — wait a few minutes and try again' }, { status: 429 })
     }
 
     if (!isZimswitchConfigured()) {

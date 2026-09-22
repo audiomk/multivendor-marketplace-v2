@@ -83,7 +83,9 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    // Matches all pages except API routes and assets
-    '/((?!api|_next/static|_next/image|assets|favicon.ico).*)',
+    // Matches all pages except API routes, assets, and the generated
+    // robots.txt/sitemap.xml (next-intl would otherwise try to treat
+    // those as locale-prefixed pages and 404 them)
+    '/((?!api|_next/static|_next/image|assets|favicon.ico|robots.txt|sitemap.xml).*)',
   ],
 }
