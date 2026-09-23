@@ -17,6 +17,8 @@ import BrowsingHistoryList from '@/components/shared/browsing-history-list'
 import RatingSummary from '@/components/shared/product/rating-summary'
 import ProductSlider from '@/components/shared/product/product-slider'
 import { getTranslations } from 'next-intl/server'
+import { buildProductJsonLd } from '@/lib/structured-data'
+import { getSetting } from '@/lib/actions/setting.actions'
 
 export async function generateMetadata(props: {
   params: Promise<{ slug: string }>
@@ -30,6 +32,12 @@ export async function generateMetadata(props: {
   return {
     title: product.name,
     description: product.description,
+    openGraph: {
+      title: product.name,
+      description: product.description,
+      images: product.images,
+      type: 'website',
+    },
   }
 }
 
@@ -52,9 +60,28 @@ export default async function ProductDetails(props: {
 
   const t = await getTranslations()
   const vendor = (product as any).vendorId
+  const { site } = await getSetting()
+
+  const productJsonLd = buildProductJsonLd({
+    name: product.name,
+    description: product.description,
+    images: product.images,
+    brand: product.brand,
+    slug: product.slug,
+    price: product.price,
+    countInStock: product.countInStock,
+    avgRating: product.avgRating,
+    numReviews: product.numReviews,
+    siteUrl: site.url,
+  })
 
   return (
     <div>
+      {/* eslint-disable-next-line react/no-danger */}
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <AddToBrowsingHistory id={product._id} category={product.category} />
 
       <section>

@@ -1,4 +1,5 @@
 import SentryClientInit from '@/components/shared/sentry-client-init'
+import PwaInit from '@/components/shared/pwa-init'
 
 export default function RootLayout({
   children,
@@ -9,6 +10,7 @@ export default function RootLayout({
     <html suppressHydrationWarning>
       <body suppressHydrationWarning>
         <SentryClientInit />
+        <PwaInit />
         {children}
       </body>
     </html>

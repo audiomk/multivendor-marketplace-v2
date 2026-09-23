@@ -30,6 +30,16 @@ export async function generateMetadata() {
     },
     description: description,
     metadataBase: new URL(url),
+    themeColor: '#006D6B',
+    icons: {
+      icon: '/icons/favicon-32.png',
+      apple: '/icons/apple-touch-icon.png',
+    },
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: 'default',
+      title: name,
+    },
   }
 }
 

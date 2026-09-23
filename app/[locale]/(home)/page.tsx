@@ -14,6 +14,7 @@ import AdSlots from '@/components/shared/home/ad-slots'
 import PersonalisedSections from '@/components/shared/home/personalised-sections'
 import { toSlug } from '@/lib/utils'
 import { getTranslations } from 'next-intl/server'
+import { buildWebsiteJsonLd } from '@/lib/structured-data'
 
 // Puts paid boosts first, then fills the rest with the organic list,
 // without ever showing the same product twice. Keyed by a field common to
@@ -59,7 +60,7 @@ function getCategoryImage(slug: string): string {
 
 export default async function HomePage() {
   const t               = await getTranslations('Home')
-  const { carousels }   = await getSetting()
+  const { carousels, site } = await getSetting()
   const [
     todaysDealsOrganic, bestSelling, newArrivals, categoriesAll,
     featuredCardsOrganic, newArrivalCards, bestSellerCards,
@@ -84,8 +85,15 @@ export default async function HomePage() {
     (p: any) => p.href
   )
 
+  const websiteJsonLd = buildWebsiteJsonLd(site.url, site.name)
+
   return (
     <div className='bg-[#F5F5F5] min-h-screen'>
+      {/* eslint-disable-next-line react/no-danger */}
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
 
       {/* Hero Carousel */}
       <HomeCarousel items={carousels} />

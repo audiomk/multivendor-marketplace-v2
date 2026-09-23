@@ -83,9 +83,14 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    // Matches all pages except API routes, assets, and the generated
-    // robots.txt/sitemap.xml (next-intl would otherwise try to treat
-    // those as locale-prefixed pages and 404 them)
-    '/((?!api|_next/static|_next/image|assets|favicon.ico|robots.txt|sitemap.xml).*)',
+    // Matches app pages only — anything under /api, /_next, or with a
+    // file extension (icons, robots.txt, sitemap.xml, sw.js, offline.html,
+    // manifest.webmanifest, etc.) is skipped. This is deliberately broad:
+    // we kept discovering static/generated files one at a time that
+    // next-intl was 404ing by trying to treat them as locale-prefixed
+    // pages (sitemap.xml, then manifest.webmanifest, then /icons/*.png).
+    // Matching "has a file extension" instead of enumerating filenames
+    // means the next one doesn't need a middleware change to work.
+    '/((?!api|_next/static|_next/image|.*\\..*).*)',
   ],
 }
