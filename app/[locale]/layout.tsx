@@ -8,6 +8,9 @@ import { routing } from '@/i18n/routing'
 import { notFound } from 'next/navigation'
 import { getSetting } from '@/lib/actions/setting.actions'
 import { cookies } from 'next/headers'
+import SentryClientInit from '@/components/shared/sentry-client-init'
+import PwaInit from '@/components/shared/pwa-init'
+import AiChatWidget from '@/components/shared/ai-chat-widget'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -76,6 +79,9 @@ export default async function AppLayout({
             {children}
           </ClientProviders>
         </NextIntlClientProvider>
+        <SentryClientInit />
+        <PwaInit />
+        <AiChatWidget />
       </body>
     </html>
   )

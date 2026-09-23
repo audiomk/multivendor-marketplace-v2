@@ -60,6 +60,11 @@ WHATSAPP_PHONE_NUMBER_ID=
 SENTRY_DSN=
 NEXT_PUBLIC_SENTRY_DSN=
 
+# AI SUPPORT CHAT — optional. Get a key at console.anthropic.com and the
+# floating chat widget goes live; see lib/ai-chat.ts. Without this, the
+# widget still shows but tells visitors chat isn't set up yet.
+ANTHROPIC_API_KEY=
+
 # SEEDING — required to run `npm run seed` against any non-localhost
 # database, as a safeguard against accidentally wiping real data.
 # SEED_CONFIRM=yes
