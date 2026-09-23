@@ -5,6 +5,7 @@ import Link from 'next/link'
 const navItems = [
   { title: 'Verify Identity', href: '/account/verification' },
   { title: 'Wishlist', href: '/account/wishlist' },
+  { title: 'Messages', href: '/account/messages' },
   { title: 'Your Reports', href: '/account/disputes' },
   // You can easily add more links here in the future
 ]

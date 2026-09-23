@@ -9,6 +9,7 @@ const links = [
   { title: 'Products',  href: '/vendor/products' },
   { title: 'Boost',     href: '/vendor/boost' },
   { title: 'Disputes',  href: '/vendor/disputes' },
+  { title: 'Messages',  href: '/vendor/messages' },
   { title: 'Orders',    href: '/vendor/orders' },
   { title: 'Earnings',  href: '/vendor/earnings' },
   { title: 'Settings',  href: '/vendor/settings' },

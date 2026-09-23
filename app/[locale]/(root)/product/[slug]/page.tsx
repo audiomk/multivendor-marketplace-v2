@@ -18,6 +18,7 @@ import RatingSummary from '@/components/shared/product/rating-summary'
 import ProductSlider from '@/components/shared/product/product-slider'
 import { getTranslations } from 'next-intl/server'
 import { buildProductJsonLd } from '@/lib/structured-data'
+import MessageSellerButton from '@/components/shared/messages/message-seller-button'
 import { getSetting } from '@/lib/actions/setting.actions'
 
 export async function generateMetadata(props: {
@@ -107,6 +108,9 @@ export default async function ProductDetails(props: {
     <Store className='w-3 h-3' />
     Visit {vendor.vendorProfile.storeName || 'Store'}
   </a>
+)}
+{vendor?._id && session?.user?.id !== vendor._id.toString() && (
+  <MessageSellerButton vendorId={vendor._id.toString()} productId={product._id} />
 )}
 
               <h1 className='font-bold text-lg lg:text-xl'>{product.name}</h1>
