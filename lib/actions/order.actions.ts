@@ -187,6 +187,19 @@ export async function getAllOrders({
     totalPages: Math.ceil(ordersCount / limit),
   }
 }
+// Orders where a buyer has submitted an EcoCash reference but an admin
+// hasn't confirmed it yet — these need a human to check the merchant
+// portal, so the admin list surfaces them.
+export async function countPendingEcoCash() {
+  await checkAdmin()
+  await connectToDatabase()
+  return Order.countDocuments({
+    isPaid: false,
+    paymentMethod: 'EcoCash',
+    'paymentResult.status': 'ECOCASH_PENDING',
+  })
+}
+
 export async function getMyOrders({
   limit,
   page,

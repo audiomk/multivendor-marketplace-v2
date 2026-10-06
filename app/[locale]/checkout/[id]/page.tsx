@@ -5,6 +5,7 @@ import { auth } from '@/auth'
 import { getOrderById } from '@/lib/actions/order.actions'
 import PaymentForm from './payment-form'
 import Stripe from 'stripe'
+import { isEcoCashDirectConfigured } from '@/lib/ecocash-api'
 
 export const metadata = {
   title: 'Payment',
@@ -40,6 +41,7 @@ const CheckoutPaymentPage = async (props: {
       paypalClientId={process.env.PAYPAL_CLIENT_ID || 'sb'}
       clientSecret={client_secret}
       isAdmin={session?.user?.role === 'Admin' || false}
+      ecocashDirectEnabled={isEcoCashDirectConfigured()}
     />
   )
 }

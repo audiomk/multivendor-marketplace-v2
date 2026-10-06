@@ -33,11 +33,13 @@ export default function OrderDetailsForm({
   order,
   paypalClientId,
   clientSecret,
+  ecocashDirectEnabled = false,
 }: {
   order: IOrder
   paypalClientId: string
   isAdmin: boolean
   clientSecret: string | null
+  ecocashDirectEnabled?: boolean
 }) {
   const router = useRouter()
   const {
@@ -160,7 +162,19 @@ export default function OrderDetailsForm({
               </Button>
             )}
 
-            {!isPaid && paymentMethod === 'EcoCash' && (
+            {/* Never show a placeholder number: if the merchant number isn't
+                configured on this deployment, say so instead of telling a
+                buyer to send real money to a fake one. */}
+            {!isPaid && paymentMethod === 'EcoCash' && !process.env.NEXT_PUBLIC_ECOCASH_NUMBER && (
+              <div className='bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm'>
+                <p className='font-medium text-yellow-800'>EcoCash isn&apos;t available right now</p>
+                <p className='text-yellow-700 mt-1'>
+                  Please contact us or choose another payment method.
+                </p>
+              </div>
+            )}
+
+            {!isPaid && paymentMethod === 'EcoCash' && process.env.NEXT_PUBLIC_ECOCASH_NUMBER && (
               <div className='space-y-3'>
                 <div className='bg-green-50 border border-green-200 rounded-lg p-4'>
                   <div className='flex items-center gap-2 mb-3'>
@@ -177,10 +191,10 @@ export default function OrderDetailsForm({
                     <div className='bg-white border border-green-300 rounded p-3'>
                       <p className='text-xs text-gray-500 mb-1'>Merchant Number</p>
                       <p className='text-xl font-bold text-green-700 tracking-wider'>
-                        {process.env.NEXT_PUBLIC_ECOCASH_NUMBER || '077 XXX XXXX'}
+                        {process.env.NEXT_PUBLIC_ECOCASH_NUMBER}
                       </p>
                       <p className='text-xs text-gray-500 mt-1'>
-                        {process.env.NEXT_PUBLIC_ECOCASH_NAME || 'MarketHub'}
+                        {process.env.NEXT_PUBLIC_ECOCASH_NAME || 'Indaba Cart'}
                       </p>
                     </div>
                     <div className='bg-white border border-green-300 rounded p-3'>
@@ -206,7 +220,7 @@ export default function OrderDetailsForm({
                   </div>
                 </div>
                 <EcoCashConfirmButton orderId={order._id} />
-                <EcoCashDirectButton orderId={order._id} />
+                {ecocashDirectEnabled && <EcoCashDirectButton orderId={order._id} />}
               </div>
             )}
 
