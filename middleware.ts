@@ -21,6 +21,13 @@ export function stripLocalePrefix(pathname: string): string {
   return pathname
 }
 
+// Behind a proxy/CDN the request URL can be http even though the visitor
+// is on https, so the forwarded-proto header takes priority when present.
+export function isHttpsRequest(url: string, forwardedProto: string | null): boolean {
+  if (forwardedProto) return forwardedProto.split(',')[0].trim() === 'https'
+  return url.startsWith('https:')
+}
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
 
@@ -36,9 +43,18 @@ export async function middleware(req: NextRequest) {
     return intlMiddleware(req)
   }
 
-  // 2. getToken() needs the secret passed explicitly here — the Edge
-  // middleware runtime doesn't reliably auto-detect AUTH_SECRET from env.
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET })
+  // 2. Read the session token. Two things must be passed explicitly:
+  //  - secret: the Edge runtime doesn't reliably auto-detect AUTH_SECRET.
+  //  - secureCookie: getToken() defaults it to false, but on HTTPS Auth.js
+  //    names the cookie "__Secure-authjs.session-token". Without this,
+  //    every signed-in user looked logged-out in production (locked
+  //    admins out of /admin, bounced vendors) while dev over http worked.
+  const secret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET
+  const secure = isHttpsRequest(req.url, req.headers.get('x-forwarded-proto'))
+  let token = await getToken({ req, secret, secureCookie: secure })
+  // If the host misreports its protocol, try the other cookie name too.
+  // Safe: the token is still verified against the secret either way.
+  if (!token) token = await getToken({ req, secret, secureCookie: !secure })
   const user = token as any
 
   // Not logged in trying to access protected areas

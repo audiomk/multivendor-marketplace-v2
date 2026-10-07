@@ -19,12 +19,18 @@ export default function BecomeVendorPage() {
     setLoading(true)
     setError('')
     const result = await applyToBeVendor(form)
-    if (!result.success) {
+    // Someone who applied earlier but got bounced back here (their login
+    // cookie still said "buyer") already has a store — refresh their
+    // session and send them in instead of showing a dead-end error.
+    const alreadyVendor = result.message === 'You already have a vendor account'
+    if (!result.success && !alreadyVendor) {
       setError(result.message || 'Something went wrong')
       setLoading(false)
       return
     }
-    await update()
+    // The object matters: update() with no argument never re-reads the
+    // database, so the cookie would keep the old buyer role.
+    await update({ refresh: true })
     window.location.href = '/vendor/overview'
   }
 

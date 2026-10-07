@@ -103,9 +103,14 @@ token.role = dbUser?.role || 'User'
         token.vendorProfile = dbUser?.vendorProfile ?? null
       }
 
-      if (session?.user?.name && trigger === 'update') {
-        token.name = session.user.name
-        // Re-fetch vendorProfile on session update too
+      // Any explicit session update() re-reads role + vendorProfile from the
+      // database. This used to run only when a name was supplied, so a
+      // buyer who just became a vendor kept a stale "User" role in their
+      // cookie and route guards kept sending them back to /become-vendor.
+      // Role and vendorProfile only ever come from the DB, never from the
+      // client-supplied payload.
+      if (trigger === 'update') {
+        if (session?.user?.name) token.name = session.user.name
         await connectToDatabase()
         const dbUser = await User.findById(token.sub).lean() as any
         token.role          = dbUser?.role          ?? token.role

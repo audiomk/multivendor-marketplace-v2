@@ -12,7 +12,9 @@ export default function RefreshButton() {
   // Auto-check every 60 seconds only
   useEffect(() => {
     const interval = setInterval(async () => {
-      const updated = await update()
+      // update() with no argument is a plain read and never refreshes the
+      // token; passing an object is what makes the server re-read the DB.
+      const updated = await update({ refresh: true })
       if ((updated?.user as any)?.vendorProfile?.isApproved) {
         router.push('/vendor/overview')
       }
@@ -22,7 +24,7 @@ export default function RefreshButton() {
 
   const handleRefresh = async () => {
     setChecking(true)
-    const updated = await update()
+    const updated = await update({ refresh: true })
     if ((updated?.user as any)?.vendorProfile?.isApproved) {
       router.push('/vendor/overview')
     } else {

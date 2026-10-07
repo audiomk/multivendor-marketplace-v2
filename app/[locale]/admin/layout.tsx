@@ -4,12 +4,22 @@ import React from 'react'
 import Menu from '@/components/shared/header/menu'
 import { AdminNav } from './admin-nav'
 import { getSetting } from '@/lib/actions/setting.actions'
+import { auth } from '@/auth'
+import { redirect } from 'next/navigation'
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // Server-side gate independent of middleware.ts: auth() is Auth.js's own
+  // session reader, so it handles production cookies natively. Middleware
+  // is the first line; this means /admin never depends on it alone.
+  const session = await auth()
+  if (!session?.user) redirect('/sign-in')
+  const role = session.user.role
+  if (role !== 'Admin' && role !== 'admin') redirect('/')
+
   const { site } = await getSetting()
   return (
     <>
